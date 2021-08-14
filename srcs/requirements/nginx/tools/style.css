@@ -1,0 +1,24 @@
+body {
+    height: 100vh;
+    background: url("images/Morpheus.jpg") center center fixed;
+    background-size: "cover";
+    display: flex;
+    flex-direction: row;
+}
+
+.wrapper {
+    width: 50%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+img {
+    width: 150px;
+    height: 150px;
+}
+
+img:hover {
+    width: 200px;
+    height: 200px;
+}
