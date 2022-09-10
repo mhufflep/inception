@@ -1,0 +1,64 @@
+version: "3.3"
+
+services:
+  nginx:
+    container_name: nginx-container
+    build: ./requirements/nginx
+    image: nginx-image
+    restart: on-failure
+    volumes:
+      - wp:/var/www/html/wordpress
+    networks:
+      - main-network
+    ports:
+      - "443:443"
+    depends_on:
+      - wordpress
+    env_file:
+      - .env
+    
+  wordpress:
+    container_name: wordpress-container
+    build: ./requirements/wordpress
+    image: wordpress-image
+    restart: on-failure
+    volumes:
+      - wp:/var/www/html/wordpress
+    networks:
+      - main-network
+    depends_on:
+      - mariadb
+    env_file:
+      - .env
+
+  mariadb:
+    container_name: mariadb-container
+    build: ./requirements/mariadb
+    image: mariadb-image
+    restart: on-failure
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - main-network
+    env_file:
+      - .env
+
+volumes:
+  db:
+    name: db
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/mhufflep/data/db
+  wp:
+    name: wp
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/mhufflep/data/wp
+
+networks:
+  main-network:
+    driver: bridge

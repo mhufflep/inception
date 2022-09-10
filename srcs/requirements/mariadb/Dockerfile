@@ -1,28 +1,19 @@
-#FROM alpine:3.8
-FROM frolvlad/alpine-glibc:alpine-3.8_glibc-2.28 
+FROM debian:buster
 
 LABEL maintainer="mhufflep@student.21-school.ru"
 
-RUN apk update && apk upgrade
+RUN apt-get update && apt-get upgrade -y
 
-RUN apk add vim 
-RUN apk add openrc --no-cache
-RUN apk add mariadb mariadb-client
-#check
-VOLUME ["/var/lib/mysql"]
-VOLUME [ "/sys/fs/cgroup" ]
+RUN apt-get -y install mariadb-server
 
-RUN mkdir -p /run/mysqld/
+RUN mkdir -p /run/mysqld && \
+	chown mysql:mysql /run/mysqld
 
-#check path
-COPY ./mysql.cnf /etc/mysql/mysql.cnf
-RUN chmod 744 /etc/mysql/mysql.cnf
+COPY ./conf/my.cnf /configurations/my.cnf
 
-# COPY ./tools/create.sql ./
-COPY start.sh /
-RUN chmod +x start.sh
-# -- scripts --
+COPY ./tools/start.sh /configurations/start.sh
+RUN chmod +x /configurations/start.sh
 
 EXPOSE 3306
 
-ENTRYPOINT ./start.sh
+CMD ["/configurations/start.sh"]

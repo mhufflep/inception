@@ -1,13 +1,25 @@
-#STATE=$(docker ps -l)
+#!/bin/bash
 
-CONTAINER_ID=$(docker ps -lq)
-if test -z "$CONTAINER_ID"
-then
-	echo "There's no running container"
-else
-	docker stop "${CONTAINER_ID}"
-	echo "Container $CONTAINER_ID stopped."
-	docker rm "${CONTAINER_ID}"
-	echo "Container $CONTAINER_ID deleted."
-fi
-#docker rmi $(docker )
+CONT_IDS="$(docker ps -a -q)"
+
+for	id in $CONT_IDS
+do
+	#CONTAINER_ID=$(docker ps -lq)
+	if test -z "$id"
+	then
+		echo "There's no running $id container"
+	else
+		docker stop "${id}"
+		
+		if [ $? == 0 ]; then
+			echo "Container $id stopped."
+		fi
+		
+		docker rm "${id}"
+		
+		if [ $? == 0 ]; then
+			echo "Container $id deleted."
+		fi
+	fi
+
+done

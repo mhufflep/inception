@@ -1,0 +1,212 @@
+* {
+	background: rgb(26, 25, 25);
+	color: #ccc;
+    font-style: normal;
+    font-variant-ligatures: normal;
+    font-variant-caps: normal;
+    font-variant-numeric: normal;
+    font-variant-east-asian: normal;
+    font-weight: normal;
+    font-stretch: normal;
+    line-height: 20px;
+	font-family: Menlo, Consolas, Monaco, "Lucida Console", "Liberation Mono", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Courier New", monospace, serif;
+	border: 0;
+}
+
+.resume-header {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.header-info {
+	margin: 20px;
+	text-align: center;
+}
+
+.header-photo {
+	margin: 20px;
+	text-align: center;
+}
+
+.header-photo > img {
+	border-radius: 250px;
+}
+
+.info-name {
+	font-size: 1.8rem;
+	margin: 10px;
+	text-align: -webkit-center;
+}
+
+.info-dev {
+	margin: 10px;
+	font-size: 18px;
+	text-align: center;
+}
+
+.info-contacts {
+	padding: 10px;
+}
+
+.info-contacts .body-title {
+	font-size: 30px;
+	padding: 20px;
+}
+
+.header-info .contact {
+	padding: 5px;
+	text-decoration: none;
+	color: inherit;
+	text-align: center;
+}
+
+.container {
+	border: 3px dotted #ccc;
+}
+
+/*.resume-body {
+	height: 60vh;
+}*/
+
+.resume-header .header-photo .img-thumbnail {
+	width: 250px;
+	background-color:transparent;
+	border: none;
+}
+
+.ed-timeline {
+	font-size: 18px;
+}
+
+.resume-cv {
+	margin: 20px;
+}
+
+.resume-cv-separator {
+	padding: 10px;
+	border-bottom: 3px dotted;
+}
+
+.body-title {
+	text-align: center;
+	font-size: 22px;
+}
+
+.body-title span {
+	color: #111;
+	background-color: rgb(169, 169, 169);
+}
+
+.ed {
+	font-size: 22px;
+	margin-top: 20px;
+	margin-bottom: 20px;	
+}
+
+.skills {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.skill {
+	margin: 20px;
+}
+
+.progress {
+	background-color: rgb(143, 143, 143);
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+.resume-cv {
+	padding-top: 20px;
+}
+
+ul {
+    list-style: none;
+}	
+
+li {
+	padding: 10px;
+}
+
+
+
+.project:before {
+	content: "> ";
+	color: rgb(101, 248, 101);
+}
+
+#additional-page {
+	font-size: 22px;
+}
+
+.project {
+	margin: 20px;
+}
+
+.lang:before {
+	content: "# ";
+	color: #fff;
+}
+
+.lang {
+	margin: 20px;
+}
+
+#additional-page > .resume-separator {
+	margin-bottom: 20px;
+}
+
+@media (min-width: 575px) {
+	.skills-tree {
+		border-right: 3px dotted;
+	}
+}
+
+@media screen and (max-width: 768px) and (min-width: 575px) 
+{
+	.ed {
+		font-size: 16ox;		
+	}
+
+}
+
+@media (max-width: 575px) {
+	.skills-tree {
+		border-bottom: 3px dotted;
+	}
+	
+}
+
+#name:before {
+    content: "<";
+    color: #ccc;
+}
+
+#name:after {
+    content: ">";
+    color: #ccc;
+}
+
+#name {
+	border-right: solid 3px rgba(247, 247, 247, 0.75);
+	white-space: nowrap;
+	overflow: hidden;   
+	padding: 10px;
+}
+ 
+#name {
+	animation: animated-text 4s steps(29,end) 1s 1 normal both,
+			   animated-cursor 600ms steps(29,end) infinite;
+}
+  
+@keyframes animated-cursor{
+	from{border-right-color: rgba(189, 189, 189, 0.75);}
+	to{border-right-color: transparent;}
+}
+
+@keyframes animated-text {
+	from { width: 0; text-align: center; }
+	to { width: 340px; text-align: center;}
+}
