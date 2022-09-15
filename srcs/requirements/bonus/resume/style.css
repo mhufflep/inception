@@ -60,13 +60,26 @@
 	text-align: center;
 }
 
-.container {
+/*.container {
 	border: 3px dotted #ccc;
 }
 
-/*.resume-body {
+.resume-body {
 	height: 60vh;
 }*/
+
+.contact > a {
+    text-decoration: none;
+    color: rgb(101, 248, 101);
+}
+
+a:link, a:visited {
+    color: rgb(101, 210, 101);
+}
+
+a:hover {
+    color: white;
+}
 
 .resume-header .header-photo .img-thumbnail {
 	width: 250px;
