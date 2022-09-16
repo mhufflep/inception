@@ -1,27 +1,32 @@
-FROM debian:buster
+FROM alpine:3.14
 
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get -y install wget php7.3 php-mysql php7.3-fpm php-pdo php-gd php-cli php-mbstring
+LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
+	  architecture="arm64v8/aarch64" \
+	  build="15-Sep-2022"
 
-RUN mkdir -p /var/www/html/wordpress && \
-	mkdir -p /run/php
+RUN apk add wget \
+    php7 php7-fpm php7-mysqli php7-zip php7-gd \
+    php7-mbstring php7-cli php7-opcache php7-zlib \
+	php7-curl php7-json php7-iconv php7-gettext \
+	php7-session php7-phar
+
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+	--output-document=/usr/local/bin/wp-cli && \
+    chmod +x /usr/local/bin/wp-cli
+
+RUN mkdir -p /run/php /var/www/html/wordpress
+
+RUN tar -xzf latest.tar.gz -C /var/www/html/wordpress && \
+    rm -rf latest.tar.gz
 
 RUN chown -R www-data:www-data /var/www/html/wordpress && \
 	chmod 755 /var/www/html/wordpress
 
-RUN wget https://wordpress.org/wordpress-5.8.1.tar.gz && \
-	tar -xzf wordpress-5.8.1.tar.gz -C /var/www/html/ && \
-	rm -f wordpress-5.8.1.tar.gz
-
-RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-    chmod +x wp-cli.phar && \
-	mv wp-cli.phar /usr/local/bin/wp-cli
-    
 COPY ./conf/www.conf /etc/php/7.3/fpm/pool.d/www.conf
 
-COPY ./tools/start.sh /start.sh
-RUN chmod +x /start.sh
+COPY ./tools/run.sh /run.sh
+RUN chmod +x /run.sh
 
-EXPOSE 5050
+EXPOSE 9000
 
-CMD ["/start.sh"]
+CMD [ '/run.sh' ]

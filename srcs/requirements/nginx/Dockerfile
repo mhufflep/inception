@@ -1,30 +1,25 @@
-FROM debian:buster
+FROM alpine:3.14
 
-LABEL maintainer="mhufflep@student.21-school.ru"
+LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
+	  architecture="arm64v8/aarch64" \
+	  build="14-Sep-2022"
 
-# -- Installing -- #
-RUN apt-get update && apt-get upgrade -y
+RUN apk update && apk upgrade -y
+RUN apk add --no-cache nginx openssl nano
 
-RUN apt-get install -y nginx openssl vim
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+	-subj "/C=RU/ST=Kazan/CN=mhufflep" \
+	-keyout /etc/ssl/private/server.key \
+	-out /etc/ssl/certs/server.crt
 
-COPY ./conf/nginx.conf /etc/nginx/sites-available
+COPY ./conf/default.conf /etc/nginx/sites-available
 
-RUN ln -s /etc/nginx/sites-available/nginx.conf \
-          /etc/nginx/sites-enabled/nginx.conf && \
+RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf && \
 	rm -f /etc/nginx/sites-available/default
 
-# -- SSL -- #
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-	-subj "/C=ru/ST=Kazan/L=Kazan/O=no/OU=no/CN=mhuf" \
-	-keyout /etc/ssl/private/mhufflep.key \
-	-out /etc/ssl/certs/mhufflep.crt
+COPY ./tools/run.sh /run.sh
+RUN chmod +x /run.sh
 
 EXPOSE 443
 
-COPY ./tools/site /var/www/html/site
-
-RUN mkdir -p /configurations
-COPY ./tools/start.sh /configurations/start.sh
-RUN chmod +x /configurations/start.sh
-
-CMD ["/configurations/start.sh"]
+CMD [ '/run.sh' ]

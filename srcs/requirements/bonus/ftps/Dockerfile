@@ -4,15 +4,13 @@ LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
 	  architecture="arm64v8/aarch64" \
 	  build="15-Sep-2022"
 
-RUN apk add --no-cache mariadb mariadb-client
+RUN apk add --no-cache vsftpd
 
-RUN mkdir -p /confs
+# Copy certificates
+# COPY 
 
-COPY ./conf/my.cnf /confs/my.cnf
-
-COPY ./tools/start.sh /run.sh
+COPY ./conf/vsftpd.conf /etc/vsftpd/vsftpd.conf
+COPY ./tools/run.sh /run.sh
 RUN chmod +x /run.sh
 
-EXPOSE 3306
-
-CMD [ '/run.sh' ]
+CMD [ './run.sh' ]

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# check wordpress folder
 if [ ! -e /var/www/html/wordpress/wp-config.php ]; then
 
     wp-cli config create
@@ -13,7 +14,7 @@ if [ ! -e /var/www/html/wordpress/wp-config.php ]; then
 	wp-cli core install
 		--allow-root
 		--url=$DOMAIN_NAME
-		--title=mhufflep.ru 
+		--title=$DOMAIN_NAME
 		--admin_user=$MYSQL_USER  
 		--admin_password=$MYSQL_PASSWORD 
 		--admin_email=$WP_ADMIN_EMAIL
@@ -24,6 +25,11 @@ if [ ! -e /var/www/html/wordpress/wp-config.php ]; then
 		--role=author
 		--user_pass=$WP_USER_PASS
 
+	# wp plugin install redis-cache --allow-root --path='/var/www/html/wordpress'
 fi
 
-php-fpm7.3 -F
+# wp plugin activate redis-cache --allow-root --path='/var/www/html/wordpress'
+# wp redis enable --allow-root --path='/var/www/html/wordpress'
+
+
+php-fpm7.3 --nodaemonize

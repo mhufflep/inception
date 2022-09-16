@@ -1,64 +1,144 @@
-version: "3.3"
+version: '3.9'
+
+platform: linux/arm64/v8
+
+# logger: &logger-link
+#   options:
+#     max-size: '30m'
+#   driver: json-file
 
 services:
-  nginx:
-    container_name: nginx-container
-    build: ./requirements/nginx
-    image: nginx-image
-    restart: on-failure
-    volumes:
-      - wp:/var/www/html/wordpress
-    networks:
-      - main-network
-    ports:
-      - "443:443"
-    depends_on:
-      - wordpress
-    env_file:
-      - .env
-    
-  wordpress:
-    container_name: wordpress-container
-    build: ./requirements/wordpress
-    image: wordpress-image
-    restart: on-failure
-    volumes:
-      - wp:/var/www/html/wordpress
-    networks:
-      - main-network
-    depends_on:
-      - mariadb
-    env_file:
-      - .env
-
   mariadb:
-    container_name: mariadb-container
+    container_name: mariadb
     build: ./requirements/mariadb
-    image: mariadb-image
-    restart: on-failure
-    volumes:
-      - db:/var/lib/mysql
+    image: mariadb
+    restart: always
     networks:
-      - main-network
+      - intercom
+    volumes:
+      - mdb_pv:/var/lib/mysql
     env_file:
       - .env
+    healthcheck:
+      test: [ 'CMD', 'mysqladmin', 'ping', '--silent' ]
+      start_period: 2m
+      retries: 3
+    # logging: *logger
+
+  wordpress:
+    container_name: wordpress
+    build: ./requirements/wordpress
+    image: wordpress
+    restart: always
+    networks:
+      - intercom
+    command: php-fpm7 --nodaemonize
+    volumes: &wp-volume
+      - wp_pv:/var/www/html/wordpress
+    env_file:
+      - .env
+    healthcheck:
+      test: #php-fpm daemon test using status\ping
+      start_period: 1m
+      retries: 3
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    # logging: *logger
+
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx
+    image: nginx
+    restart: always
+    networks:
+      - intercom
+    volumes: 
+      <<: *wp-volume
+      - resume_pv:/var/www/html/resume
+    ports:
+      - 443:443
+    env_file:
+      - .env
+    healthcheck:
+      test: [ 'CMD', 'curl' '-kf' 'https://localhost/healthcheck' ]
+      start_period: 1m
+      retries: 3
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    # logging: *logger
+
+# must enable php-fpm ping/status in pool.ini
+# must forward /ping and /status urls from nginx to php-fpm
+ adminer:
+    container_name: adminer
+    build: ./requirements/bonus/adminer
+    image: adminer
+    restart: always
+    networks:
+      - intercom
+    ports:
+      - 8080:8080
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    # logging: *logger
+
+  redis:
+    container_name: redis
+    build: ./requirements/bonus/redis
+    image: redis
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - intercom
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    # logging: *logger
+  
+  ftps:
+    container_name: ftps
+    build: ./requirements/bonus/ftps
+    image: ftps
+    restart: always
+    networks:
+      - intercom
+    volumes: *wp-volume
+    ports:
+      - 21:21
+      - 10000-10100:10000-10100
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    # logging: *logger
+
+  # one extra service !
 
 volumes:
-  db:
-    name: db
+  mdb_pv:
+    name: mdb_pv
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/mhufflep/data/db
-  wp:
-    name: wp
+      device: ${MDB_PV_PATH:? mariadb volume path must be specified}
+  wp_pv:
+    name: wp_pv
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/mhufflep/data/wp
+      device: ${WP_PV_PATH:? wordpress volume path must be specified}
+  resume_pv:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${RESUME_PV_PATH:? resume volume path must be specified}
 
 networks:
-  main-network:
+  intercom:
     driver: bridge

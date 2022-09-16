@@ -4,15 +4,10 @@ LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
 	  architecture="arm64v8/aarch64" \
 	  build="15-Sep-2022"
 
-RUN apk add --no-cache mariadb mariadb-client
+RUN apk add --no-cache redis 
 
-RUN mkdir -p /confs
+COPY ./conf/redis.cong /etc/redis/redis.conf
 
-COPY ./conf/my.cnf /confs/my.cnf
-
-COPY ./tools/start.sh /run.sh
-RUN chmod +x /run.sh
-
-EXPOSE 3306
+EXPOSE 6379
 
 CMD [ '/run.sh' ]
