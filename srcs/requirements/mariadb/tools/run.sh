@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 SQL_FILE = 'mysql-init.sql'
 

@@ -1,52 +1,56 @@
-.PHONY: clean fclean re all makedir
+.PHONY: clean fclean re all makedir copy_resume generate_certs
 
 ###################################################################################
 #                                Configurations                                   #
 ###################################################################################
 
-SHELL := /bin/bash 
+DOCKER_COMPOSE  = docker compose
 
-COMPOSE     = docker compose
+ENV_PATH        = ./srcs/.env
+CONF_PATH       = ./srcs/docker-compose.yml
+EXTRA_DIR       = ./srcs/requirements/bonus
+TOOLS_DIR       = ./srcs/requirements/tools
+RESUME_PATH     = ${EXTRA_DIR}/resume
 
-MDB_PV_NAME = mdb_pv
-WP_PV_NAME  = wp_pv
+include ${ENV_PATH}
 
-MDB_PV_PATH = /home/mhufflep/data/mdb
-WP_PV_PATH  = /home/mhufflep/data/wp
-
-CONF_PATH   = ./srcs/docker-compose.yml
-
-# Why resume should present in the /home/data dir?
-RESUME_LOCAL_PATH = ./srcs/requirements/bonus/resume/
-RESUME_VOLUME_PATH = /home/data/mhufflep/
+IMAGES           = nginx mariadb wordpress redis adminer ftps
+VOLUMES_NAMES    = ${PV_MDB_NAME} ${PV_WP_NAME} ${PV_RESUME_NAME} ${PV_CERTS_NAME}
+VOLUMES_PATHS    = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_RESUME_PATH} ${PV_CERTS_PATH}
 
 ###################################################################################
 #                                   Commands                                      #
 ###################################################################################
 
 makedir:
-	@mkdir -p ${MDB_PV_PATH} ${WP_PV_PATH}
+	@mkdir -p ${VOLUMES_PATHS}
 
-copy_site:
-	@cp -r ${RESUME_LOCAL_PATH} ${RESUME_VOLUME_PATH}
+copy_resume:
+	@cp -r ${RESUME_PATH} ${PV_RESUME_PATH}
 
-all: makedir
-	${MDB_PV_PATH} ${WP_PV_PATH} ${COMPOSE} -f ${CONF_PATH} build
-	${MDB_PV_PATH} ${WP_PV_PATH} ${COMPOSE} -f ${CONF_PATH} up -d
+generate_certs:
+	@cp ${TOOLS_DIR}/gencert.sh ${PV_CERTS_PATH}
+	@chmod +x ${PV_CERTS_PATH}/gencert.sh
+	@cd 
+
+all: makedir copy_resume generate_certs
+	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build
+# ${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build --no-cache
+	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d 
 
 up:
-	${COMPOSE} -f ${CONF_PATH} up -d
+	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d
 
 down:
-	${COMPOSE} -f ${CONF_PATH} down
+	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} down
 
 ls:
-	${COMPOSE} -f ${CONF_PATH} ls
+	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} ls
 
 ps:
-	${COMPOSE} -f ${CONF_PATH} ps
+	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} ps
 
 clean:
-	sudo docker image rm nginx mariadb wordpress
-	sudo docker volume rm ${MDB_PV_NAME} ${WP_PV_NAME}
-	sudo rm -rf ${MDB_PV_PATH}/* ${WP_PV_PATH}/*
+	sudo docker image rm ${IMAGES}
+	sudo docker volume rm ${VOLUMES_NAMES}
+	sudo rm -rf ${VOLUMES_PATHS}

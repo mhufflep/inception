@@ -2,10 +2,10 @@ version: '3.9'
 
 platform: linux/arm64/v8
 
-# logger: &logger-link
-#   options:
-#     max-size: '30m'
-#   driver: json-file
+logger: &logger-link
+  options:
+    max-size: '50m'
+  driver: json-file
 
 services:
   mariadb:
@@ -13,28 +13,31 @@ services:
     build: ./requirements/mariadb
     image: mariadb
     restart: always
+    # init: true
     networks:
       - intercom
     volumes:
       - mdb_pv:/var/lib/mysql
+    # environment:
     env_file:
       - .env
     healthcheck:
-      test: [ 'CMD', 'mysqladmin', 'ping', '--silent' ]
-      start_period: 2m
+      test: [ 'CMD', 'mysqladmin', 'ping', '--silent', '-p${MYSQL_ROOT_PASSWORD:? Root pswd required for MariaDB}' ]
+      start_period: 1m
       retries: 3
-    # logging: *logger
+    logging: *logger-link
 
   wordpress:
     container_name: wordpress
     build: ./requirements/wordpress
     image: wordpress
     restart: always
+    # init: true
     networks:
       - intercom
-    command: php-fpm7 --nodaemonize
     volumes: &wp-volume
       - wp_pv:/var/www/html/wordpress
+    # environment:
     env_file:
       - .env
     healthcheck:
@@ -44,78 +47,115 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
-    # logging: *logger
+    logging: *logger-link
 
   nginx:
     container_name: nginx
     build: ./requirements/nginx
     image: nginx
     restart: always
+    # init: true
     networks:
       - intercom
     volumes: 
       <<: *wp-volume
       - resume_pv:/var/www/html/resume
+      - certs_pv:/var/www/certs
     ports:
       - 443:443
+    # environment:
     env_file:
       - .env
     healthcheck:
-      test: [ 'CMD', 'curl' '-kf' 'https://localhost/healthcheck' ]
-      start_period: 1m
+      test: [ 'CMD', 'curl' '-kf' 'https://${DOMAIN_NAME}/healthcheck' ] # won't work without changes in nginx.conf
+      start_period: 15s
       retries: 3
     depends_on:
       wordpress:
         condition: service_healthy
-    # logging: *logger
+    logging: *logger-link
 
-# must enable php-fpm ping/status in pool.ini
-# must forward /ping and /status urls from nginx to php-fpm
  adminer:
     container_name: adminer
     build: ./requirements/bonus/adminer
     image: adminer
     restart: always
+    # init: true
     networks:
       - intercom
-    ports:
-      - 8080:8080
+    healthcheck:
+      test: #php-fpm daemon test using status\ping
+      start_period: 1m
+      retries: 3
     depends_on:
       mariadb:
         condition: service_healthy
-    # logging: *logger
+    logging: *logger-link
 
   redis:
     container_name: redis
     build: ./requirements/bonus/redis
     image: redis
     restart: always
-    ports:
-      - 6379:6379
+    # init: true
     networks:
       - intercom
+    healthcheck:
+      test: #php-fpm daemon test using status\ping
+      start_period: 1m
+      retries: 3
     depends_on:
       wordpress:
         condition: service_healthy
-    # logging: *logger
+    logging: *logger-link
   
   ftps:
     container_name: ftps
     build: ./requirements/bonus/ftps
     image: ftps
     restart: always
+    # init: true
     networks:
       - intercom
-    volumes: *wp-volume
+    # environment:
+    volumes:
+      <<: *wp-volume
+      - certs_pv:${CERTS_DIR:? certs dir must be specified}
     ports:
       - 21:21
       - 10000-10100:10000-10100
     depends_on:
       wordpress:
         condition: service_healthy
-    # logging: *logger
+    logging: *logger-link
 
-  # one extra service !
+  prometheus:
+    container_name: prometheus
+    build: ./requirements/bonus/prometheus
+    image: prometheus
+    # init: true
+    volumes: # better copy config in the docker file
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    commands:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    logging: *logger-link
+  
+  cadvisor:
+    container_name: cadvisor
+    build: ./requirements/bonus/cadvisor
+    image: cadvisor
+    # init: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk:/dev/disk/:ro
+    ports:
+      - 8080:8080
+    logging: *logger-link
 
 volumes:
   mdb_pv:
@@ -124,20 +164,28 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${MDB_PV_PATH:? mariadb volume path must be specified}
+      device: ${PV_MDB_PATH:? mariadb volume path must be specified}
   wp_pv:
     name: wp_pv
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${WP_PV_PATH:? wordpress volume path must be specified}
+      device: ${PV_WP_PATH:? wordpress volume path must be specified}
   resume_pv:
+    name: resume_pv
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ${RESUME_PV_PATH:? resume volume path must be specified}
+      device: ${PV_RESUME_PATH:? resume volume path must be specified}
+  certs_pv:
+    name: certs_pv
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${PV_CERTS_PATH:? certs volume path must be specified}
 
 networks:
   intercom:
