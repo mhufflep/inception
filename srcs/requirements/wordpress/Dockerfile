@@ -4,7 +4,8 @@ LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
 	  architecture="arm64v8/aarch64" \
 	  build="15-Sep-2022"
 
-RUN apk add wget \
+RUN apk update && apk upgrade -y
+RUN apk add --no-cache wget \
     php7 php7-fpm php7-mysqli php7-zip php7-gd \
     php7-mbstring php7-cli php7-opcache php7-zlib \
 	php7-curl php7-json php7-iconv php7-gettext \

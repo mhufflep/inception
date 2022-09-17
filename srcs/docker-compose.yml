@@ -7,22 +7,44 @@ logger: &logger-link
     max-size: '50m'
   driver: json-file
 
+env-mdb: &env-mdb-link
+  MYSQL_HOST: ${MYSQL_HOST:? MYSQL_HOST is required }
+  MYSQL_USER_NAME: ${MYSQL_USER_NAME:? MYSQL_USER_NAME is required }
+  MYSQL_USER_PASS: ${MYSQL_USER_PASS:? MYSQL_USER_PASS is required }
+  MYSQL_ROOT_PASS: ${MYSQL_ROOT_PASS:? MYSQL_ROOT_PASS is required }
+
+env-wp: &env-wp-link
+  WP_URL: ${WP_URL:? WP_URL is required }
+  WP_TITLE: ${WP_TITLE:? WP_TITLE is required }
+  WP_DB_NAME: ${WP_DB_NAME:? WP_DB_NAME is required }
+  WP_ADMIN_NAME: ${WP_ADMIN_NAME:? WP_ADMIN_NAME is required }
+  WP_ADMIN_PASS: ${WP_ADMIN_PASS:? WP_ADMIN_PASS is required }
+  WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:? WP_ADMIN_EMAIL is required }
+  WP_USER_NAME: ${WP_USER_NAME:? WP_USER_NAME is required }
+  WP_USER_PASS: ${WP_USER_PASS:? WP_USER_PASS is required }
+  WP_USER_EMAIL: ${WP_USER_EMAIL:? WP_USER_EMAIL is required }
+
+env-ftps: &env-ftps-link
+  FTP_ROOT_DIR:  ${FTP_ROOT_DIR:? FTP_ROOT_DIR is required }
+  FTP_USER_NAME: ${FTP_USER_NAME:? FTP_USER_NAME is required }
+  FTP_USER_PASS: ${FTP_USER_PASS:? FTP_USER_PASS is required }
+  FTP_PASV_PORT_MIN: ${FTP_PASV_PORT_MIN:? FTP_PASV_PORT_MIN is required }
+  FTP_PASV_PORT_MAX: ${FTP_PASV_PORT_MAX:? FTP_PASV_PORT_MAX is required }
+
 services:
   mariadb:
     container_name: mariadb
     build: ./requirements/mariadb
     image: mariadb
     restart: always
-    # init: true
+    init: true
     networks:
       - intercom
     volumes:
       - mdb_pv:/var/lib/mysql
-    # environment:
-    env_file:
-      - .env
+    environment: *env-mdb-link
     healthcheck:
-      test: [ 'CMD', 'mysqladmin', 'ping', '--silent', '-p${MYSQL_ROOT_PASSWORD:? Root pswd required for MariaDB}' ]
+      test: [ 'CMD', 'mysqladmin', 'ping', '--silent', '-p${MYSQL_ROOT_PASSWORD}' ]
       start_period: 1m
       retries: 3
     logging: *logger-link
@@ -32,14 +54,14 @@ services:
     build: ./requirements/wordpress
     image: wordpress
     restart: always
-    # init: true
+    init: true
     networks:
       - intercom
     volumes: &wp-volume
       - wp_pv:/var/www/html/wordpress
-    # environment:
-    env_file:
-      - .env
+    environment:
+      <<: *env-mdb-link
+      <<: *env-wp-link
     healthcheck:
       test: #php-fpm daemon test using status\ping
       start_period: 1m
@@ -54,20 +76,17 @@ services:
     build: ./requirements/nginx
     image: nginx
     restart: always
-    # init: true
+    init: true
     networks:
       - intercom
     volumes: 
       <<: *wp-volume
-      - resume_pv:/var/www/html/resume
-      - certs_pv:/var/www/certs
+      - resume_pv:/var/www/html/resume:ro
+      - certs_pv:${CERTS_DIR:? CERTS_DIR is required}:ro
     ports:
       - 443:443
-    # environment:
-    env_file:
-      - .env
     healthcheck:
-      test: [ 'CMD', 'curl' '-kf' 'https://${DOMAIN_NAME}/healthcheck' ] # won't work without changes in nginx.conf
+      test: [ 'CMD', 'curl' '-kf' 'https://${DOMAIN_NAME}/healthcheck' ]
       start_period: 15s
       retries: 3
     depends_on:
@@ -80,7 +99,7 @@ services:
     build: ./requirements/bonus/adminer
     image: adminer
     restart: always
-    # init: true
+    init: true
     networks:
       - intercom
     healthcheck:
@@ -97,7 +116,7 @@ services:
     build: ./requirements/bonus/redis
     image: redis
     restart: always
-    # init: true
+    init: true
     networks:
       - intercom
     healthcheck:
@@ -114,16 +133,16 @@ services:
     build: ./requirements/bonus/ftps
     image: ftps
     restart: always
-    # init: true
+    init: true
     networks:
       - intercom
-    # environment:
+    environment: *env-ftps-link
     volumes:
       <<: *wp-volume
-      - certs_pv:${CERTS_DIR:? certs dir must be specified}
+      - certs_pv:${CERTS_DIR:? CERTS_DIR is required}:ro
     ports:
       - 21:21
-      - 10000-10100:10000-10100
+      - ${FTP_PASV_PORT_MIN}-${FTP_PASV_PORT_MAX}:${FTP_PASV_PORT_MIN}-${FTP_PASV_PORT_MAX}
     depends_on:
       wordpress:
         condition: service_healthy
@@ -133,59 +152,61 @@ services:
     container_name: prometheus
     build: ./requirements/bonus/prometheus
     image: prometheus
-    # init: true
-    volumes: # better copy config in the docker file
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    commands:
-      - '--config.file=/etc/prometheus/prometheus.yml'
+    init: true
     ports:
-      - 9090:9090
+      - ${PROMETHEUS_PORT:? PROMETHEUS_PORT is required}:${PROMETHEUS_PORT}
     logging: *logger-link
   
   cadvisor:
     container_name: cadvisor
     build: ./requirements/bonus/cadvisor
     image: cadvisor
-    # init: true
+    init: true
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk:/dev/disk/:ro
-    ports:
-      - 8080:8080
+    expose: 
+      - ${CADVISOR_PORT:? CADVISOR_PORT is required}
+    healthcheck:
+      test: [ 'CMD', 'wget', '--quiet', '--spider', 'http://localhost:${CADVISOR_PORT}/healthz' ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 1m
     logging: *logger-link
 
 volumes:
-  mdb_pv:
-    name: mdb_pv
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PV_MDB_PATH:? mariadb volume path must be specified}
   wp_pv:
     name: wp_pv
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${PV_WP_PATH:? wordpress volume path must be specified}
-  resume_pv:
-    name: resume_pv
+      device: ${PV_WP_PATH:? PV_WP_PATH is required }
+  mdb_pv:
+    name: mdb_pv
     driver: local
     driver_opts:
-      o: bind
       type: none
-      device: ${PV_RESUME_PATH:? resume volume path must be specified}
+      o: bind
+      device: ${PV_MDB_PATH:? PV_MDB_PATH is required }
   certs_pv:
     name: certs_pv
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ${PV_CERTS_PATH:? certs volume path must be specified}
+      device: ${PV_CERTS_PATH:? PV_CERTS_PATH is required }
+  resume_pv:
+    name: resume_pv
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${PV_RESUME_PATH:? PV_RESUME_PATH is required }
 
 networks:
   intercom:

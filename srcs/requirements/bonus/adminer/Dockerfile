@@ -8,7 +8,6 @@ ARG	ADMINER_VERSION=4.8.1
 ARG ADMINER_FOLDER=/var/www/html/adminer
 
 RUN apk update && apk upgrade -y
-
 RUN	apk add --no-cache wget \
 	php7-session php7 php7-fpm php7-mysqli
 	

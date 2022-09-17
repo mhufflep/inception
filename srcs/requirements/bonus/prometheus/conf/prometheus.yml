@@ -1,21 +1,16 @@
+
 global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
-alerting:
-  alertmanagers:
-  - static_configs:
-    - targets:
-    # whatever you want
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-    - targets: ['prometheus:9090']
+    - targets: [ 'prometheus:9090' ]
       labels:
         alias: 'prometheus'
   - job_name: 'cadvisor'
     static_configs:
-    - targets: ['cadvisor:8080']
+    - targets: [ 'cadvisor:8080' ]
       labels:
         alias: 'cadvisor'
-
-# change this

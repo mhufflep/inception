@@ -31,7 +31,7 @@ copy_resume:
 generate_certs:
 	@cp ${TOOLS_DIR}/gencert.sh ${PV_CERTS_PATH}
 	@chmod +x ${PV_CERTS_PATH}/gencert.sh
-	@cd 
+	@cd ${PV_CERTS_PATH} && ./gencert.sh ${DOMAIN_NAME} ${DOMAIN_IP}
 
 all: makedir copy_resume generate_certs
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build

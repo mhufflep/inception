@@ -1,9 +1,5 @@
 #!/bin/sh
 
-mkdir -p /etc/ssl/certs
-mkdir -p /etc/ssl/private
+echo "${FTP_USER_NAME}:${FTP_USER_PASS}" | chpasswd
 
-cp ${CRT_PATH} /etc/ssl/certs/vsftpd.crt
-cp ${KEY_PATH} /etc/ssl/private/vsftpd.key
-
-vsftpd /etc/vsftpd.conf
+exec vsftpd /etc/vsftpd.conf

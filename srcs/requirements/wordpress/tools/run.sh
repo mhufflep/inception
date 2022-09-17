@@ -2,7 +2,7 @@
 
 if [ ! -e /var/www/html/wordpress/wp-config.php ]; then
 
-    wp-cli config create --allow-root    \
+    wp-cli config create  --allow-root   \
 		--dbname=$WP_DB_NAME             \
 		--dbuser=$MYSQL_USER             \
 		--dbpass=$MYSQL_PASSWORD         \
@@ -10,8 +10,8 @@ if [ ! -e /var/www/html/wordpress/wp-config.php ]; then
 		--dbprefix=wp
     
 	wp-cli core install  --allow-root    \
-		--url=$DOMAIN_NAME               \
-		--title=$DOMAIN_NAME             \
+		--url=$WP_URL                    \
+		--title=$WP_TITLE                \
 		--admin_user=$MYSQL_USER         \
 		--admin_password=$MYSQL_PASSWORD \
 		--admin_email=$WP_ADMIN_EMAIL    
@@ -28,4 +28,4 @@ fi
 # wp plugin activate redis-cache --allow-root --path='/var/www/html/wordpress'
 # wp redis enable --allow-root --path='/var/www/html/wordpress'
 
-php-fpm7.3 --nodaemonize
+exec php-fpm7.3 --nodaemonize

@@ -16,4 +16,4 @@ echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD" >> ${SQ
 echo "FLUSH PRIVILEGES;" >> ${SQL_FILE}
 
 # Running daemon
-mysqld --default-file='/confs/my.cnf' --datadir='/var/lib/mysql' --init-file ${SQL_FILE}
+exec mysqld --default-file='/confs/my.cnf' --datadir='/var/lib/mysql' --init-file ${SQL_FILE}
