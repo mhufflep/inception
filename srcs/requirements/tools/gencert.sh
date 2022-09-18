@@ -18,7 +18,7 @@ EXT_conf=cert.conf
 DOMAIN=$1
 DOMAIN_IP=$2
 
-# 0. Create Certificate Authority
+echo "# 0. Create Certificate Authority"
 openssl req -x509 \
     -sha256 -days 356 \
     -nodes \
@@ -26,11 +26,11 @@ openssl req -x509 \
     -subj "/CN=${DOMAIN}/C=RU/L=Kazan" \
     -keyout ${CA_pkey} -out ${CA_cert} 
 
-# 1. Create the Server Private Key
+echo "# 1. Create the Server Private Key"
 openssl genrsa \
     -out ${SRV_pkey} 2048
 
-# 2. Create Certificate Signing Request Configuration
+echo "# 2. Create Certificate Signing Request Configuration"
 echo \
 "[ req ]
 default_bits = 2048
@@ -57,14 +57,13 @@ IP.1 = ${DOMAIN_IP}
 IP.2 = 127.0.0.1
 " > ${CSR_conf}
 
-# 3. Generate Certificate Signing Request (CSR) Using Server Private Key
-openssl req \ 
-    -new \ 
+echo "# 3. Generate Certificate Signing Request (CSR) Using Server Private Key"
+openssl req -new \
     -key ${SRV_pkey} \
     -out ${SRV_csr} \
     -config ${CSR_conf}
 
-# 4. Create a configuration file containing certificate and request X.509 extensions to add.
+echo "# 4. Create a configuration file containing certificate and request X.509 extensions to add."
 echo \
 "authorityKeyIdentifier=keyid,issuer
 basicConstraints=CA:FALSE
@@ -76,7 +75,7 @@ DNS.1 = ${DOMAIN}
 DNS.2 = localhost
 " > ${EXT_conf}
 
-# 5. Generate SSL certificate With self signed CA
+echo "# 5. Generate SSL certificate With self signed CA"
 openssl x509 -req  \
     -in ${SRV_csr}  \
     -CA ${CA_cert}   \
@@ -87,7 +86,7 @@ openssl x509 -req  \
     -out ${SRV_cert} \
     -extfile ${EXT_conf}
 
-# 6. Remove unnecessary files
+echo "# 6. Remove unnecessary files"
 rm -f ${EXT_conf}
 rm -f ${CSR_conf}
 rm -f ${SRV_csr}
