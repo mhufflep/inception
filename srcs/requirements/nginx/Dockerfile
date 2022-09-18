@@ -5,7 +5,7 @@ LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
 	  build="14-Sep-2022"
 
 RUN apk update && apk upgrade -y
-RUN apk add --no-cache nginx nano
+RUN apk add --no-cache nginx nano envsubst
 
 COPY ./conf/default.conf /etc/nginx/sites-available
 

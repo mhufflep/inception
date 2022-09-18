@@ -1,31 +1,36 @@
 #!/bin/sh
 
-if [ ! -e /var/www/html/wordpress/wp-config.php ]; then
+if wp-cli core is-installed; then
+	echo "Wordpress already installed"
+else
 
-    wp-cli config create  --allow-root   \
-		--dbname=$WP_DB_NAME             \
-		--dbuser=$MYSQL_USER             \
-		--dbpass=$MYSQL_PASSWORD         \
-		--dbhost=$MYSQL_HOST             \
-		--dbprefix=wp
-    
-	wp-cli core install  --allow-root    \
+	if [ ! -e wp-config.php ]; then
+
+		wp-cli config create             \
+			--dbname=$WP_DB_NAME         \
+			--dbuser=$MYSQL_USER_NAME    \
+			--dbpass=$MYSQL_USER_PASS    \
+			--dbhost=$MYSQL_HOST         \
+			--dbprefix=wp
+		
+	fi
+
+	wp-cli core install                  \
 		--url=$WP_URL                    \
 		--title=$WP_TITLE                \
-		--admin_user=$MYSQL_USER         \
-		--admin_password=$MYSQL_PASSWORD \
+		--admin_user=$WP_ADMIN_NAME      \
+		--admin_password=$WP_ADMIN_PASS  \
 		--admin_email=$WP_ADMIN_EMAIL    
-    
-    wp-cli user create   --allow-root    \
+		
+	wp-cli user create                   \
 		$WP_USER_NAME                    \
 		$WP_USER_EMAIL                   \
 		--role=author                    \
 		--user_pass=$WP_USER_PASS        
 
-	# wp plugin install redis-cache --allow-root --path='/var/www/html/wordpress'
+	wp-cli plugin install redis-cache
+	wp-cli plugin activate redis-cache
+	wp-cli redis enable	
 fi
-
-# wp plugin activate redis-cache --allow-root --path='/var/www/html/wordpress'
-# wp redis enable --allow-root --path='/var/www/html/wordpress'
 
 exec php-fpm7.3 --nodaemonize

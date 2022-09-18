@@ -62,10 +62,10 @@ services:
     environment:
       <<: *env-mdb-link
       <<: *env-wp-link
-    healthcheck:
-      test: #php-fpm daemon test using status\ping
-      start_period: 1m
-      retries: 3
+    # healthcheck:
+    #   test: #php-fpm daemon test using status\ping
+    #   start_period: 1m
+    #   retries: 3
     depends_on:
       mariadb:
         condition: service_healthy
@@ -102,10 +102,10 @@ services:
     init: true
     networks:
       - intercom
-    healthcheck:
-      test: #php-fpm daemon test using status\ping
-      start_period: 1m
-      retries: 3
+    # healthcheck:
+    #   test: #php-fpm daemon test using status\ping
+    #   start_period: 1m
+    #   retries: 3
     depends_on:
       mariadb:
         condition: service_healthy
@@ -120,7 +120,7 @@ services:
     networks:
       - intercom
     healthcheck:
-      test: #php-fpm daemon test using status\ping
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
       start_period: 1m
       retries: 3
     depends_on:

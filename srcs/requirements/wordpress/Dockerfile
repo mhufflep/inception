@@ -25,6 +25,8 @@ RUN chown -R www-data:www-data /var/www/html/wordpress && \
 
 COPY ./conf/www.conf /etc/php/7.3/fpm/pool.d/www.conf
 
+WORKDIR /var/www/wordpress
+
 COPY ./tools/run.sh /run.sh
 RUN chmod +x /run.sh
 
