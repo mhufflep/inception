@@ -28,15 +28,15 @@ all: makedir copy_resume generate_certs
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d 
 
 makedir:
-	@mkdir -p ${VOLUMES_PATHS}
+	mkdir -p ${VOLUMES_PATHS}
 
 copy_resume:
-	@cp -r ${RESUME_PATH} ${PV_RESUME_PATH}
+	cp -r ${RESUME_PATH} ${PV_RESUME_PATH}
 
 generate_certs:
-	@cp ${TOOLS_DIR}/gencert.sh ${PV_CERTS_PATH}
-	@chmod +x ${PV_CERTS_PATH}/gencert.sh
-	@cd ${PV_CERTS_PATH} && ./gencert.sh ${DOMAIN_NAME} ${DOMAIN_IP}
+	cp ${TOOLS_DIR}/gencert.sh ${PV_CERTS_PATH}
+	chmod +x ${PV_CERTS_PATH}/gencert.sh
+	cd ${PV_CERTS_PATH} && ./gencert.sh ${DOMAIN_NAME} ${DOMAIN_IP}
 
 up:
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d
