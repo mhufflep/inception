@@ -22,6 +22,11 @@ VOLUMES_PATHS    = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_RESUME_PATH} ${PV_CERTS_PAT
 #                                   Commands                                      #
 ###################################################################################
 
+all: makedir copy_resume generate_certs
+	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build
+# ${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build --no-cache
+	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d 
+
 makedir:
 	@mkdir -p ${VOLUMES_PATHS}
 
@@ -32,11 +37,6 @@ generate_certs:
 	@cp ${TOOLS_DIR}/gencert.sh ${PV_CERTS_PATH}
 	@chmod +x ${PV_CERTS_PATH}/gencert.sh
 	@cd ${PV_CERTS_PATH} && ./gencert.sh ${DOMAIN_NAME} ${DOMAIN_IP}
-
-all: makedir copy_resume generate_certs
-	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build
-# ${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build --no-cache
-	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d 
 
 up:
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d
