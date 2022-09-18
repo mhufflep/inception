@@ -51,6 +51,6 @@ ps:
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} ps
 
 clean:
-	sudo docker image rm ${IMAGES}
-	sudo docker volume rm ${VOLUMES_NAMES}
-	sudo rm -rf ${VOLUMES_PATHS}
+	sudo docker image rm ${IMAGES} || exit 1
+	sudo docker volume rm ${VOLUMES_NAMES} || exit 1
+	sudo rm -rf ${VOLUMES_PATHS} || exit 1

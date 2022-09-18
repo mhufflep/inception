@@ -5,14 +5,12 @@ if wp-cli core is-installed; then
 else
 
 	if [ ! -e wp-config.php ]; then
-
 		wp-cli config create             \
 			--dbname=$WP_DB_NAME         \
 			--dbuser=$MYSQL_USER_NAME    \
 			--dbpass=$MYSQL_USER_PASS    \
 			--dbhost=$MYSQL_HOST         \
 			--dbprefix=wp
-		
 	fi
 
 	wp-cli core install                  \

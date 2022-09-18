@@ -6,11 +6,10 @@ LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
 
 ARG	CADVISOR_VERSION=0.45.0
 
-RUN apk update && apk upgrade -y
+RUN apk update && apk upgrade
 RUN apk add --no-cache wget
 
-RUN wget "https://github.com/google/cadvisor/releases/download/v$CADVISOR_VERSION/cadvisor-v$CADVISOR_VERSION-linux-arm64" \
-	--output-document="/usr/bin/cadvisor"
+RUN wget "https://github.com/google/cadvisor/releases/download/v$CADVISOR_VERSION/cadvisor-v$CADVISOR_VERSION-linux-arm64" --output-document="/usr/bin/cadvisor"
 
 RUN	chmod +x /usr/bin/cadvisor
 
