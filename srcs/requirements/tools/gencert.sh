@@ -1,22 +1,22 @@
 #!/bin/bash
 
-KEY_DIR = private
-CRT_DIR = certs
+KEY_DIR=private
+CRT_DIR=certs
 
 mkdir -p ${KEY_DIR} ${CRT_DIR}
 
-CA_cert = mhufflep_CA.crt
-CA_pkey = mhufflep_CA.key
+CA_cert=mhufflep_CA.crt
+CA_pkey=mhufflep_CA.key
 
-SRV_cert = ${CRT_DIR}/server.crt
-SRV_pkey = ${KEY_DIR}/server.key
-SRV_csr  = server.csr
+SRV_cert=${CRT_DIR}/server.crt
+SRV_pkey=${KEY_DIR}/server.key
+SRV_csr=server.csr
 
-CSR_conf = csr.conf
-EXT_conf = cert.conf
+CSR_conf=csr.conf
+EXT_conf=cert.conf
 
-DOMAIN    = $1
-DOMAIN_IP = $2
+DOMAIN=$1
+DOMAIN_IP=$2
 
 # 0. Create Certificate Authority
 openssl req -x509 \
