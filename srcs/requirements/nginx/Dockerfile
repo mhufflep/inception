@@ -5,13 +5,13 @@ LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
 	  build="14-Sep-2022"
 
 RUN apk update && apk upgrade
-RUN apk add --no-cache nginx nano gettext
+RUN apk add --no-cache nginx gettext
 
-COPY ./conf/default.conf /etc/nginx/conf.d/default.conf
+RUN mkdir -p /etc/nginx/conf.d/
+
+COPY ./conf/default.conf /default.conf
 
 COPY ./tools/run.sh /run.sh
 RUN chmod +x /run.sh
 
-EXPOSE 443
-
-CMD [ '/run.sh' ]
+ENTRYPOINT [ "/run.sh" ]

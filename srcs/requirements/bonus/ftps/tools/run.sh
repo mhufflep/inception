@@ -10,4 +10,4 @@ else
     echo "ftps: user exist"
 fi
 
-exec vsftpd /etc/vsftpd.conf
+exec vsftpd /etc/vsftpd.conf $@

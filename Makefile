@@ -8,13 +8,13 @@ DOCKER_COMPOSE  = docker compose
 
 ENV_PATH        = ./srcs/.env
 CONF_PATH       = ./srcs/docker-compose.yml
-EXTRA_DIR       = ./srcs/requirements/bonus
+BONUS_DIR       = ./srcs/requirements/bonus
 TOOLS_DIR       = ./srcs/requirements/tools
-RESUME_PATH     = ${EXTRA_DIR}/resume
+RESUME_PATH     = ${BONUS_DIR}/resume
 
 include ${ENV_PATH}
 
-IMAGES           = nginx mariadb wordpress redis adminer ftps
+IMAGES           = nginx mariadb wordpress redis adminer ftps cadvisor prometheus
 VOLUMES_NAMES    = ${PV_MDB_NAME} ${PV_WP_NAME} ${PV_RESUME_NAME} ${PV_CERTS_NAME}
 VOLUMES_PATHS    = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_RESUME_PATH} ${PV_CERTS_PATH}
 
@@ -23,7 +23,7 @@ VOLUMES_PATHS    = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_RESUME_PATH} ${PV_CERTS_PAT
 ###################################################################################
 
 all: makedir copy_resume generate_certs
-	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build
+	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build --no-cache
 # ${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build --no-cache
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d 
 
@@ -50,7 +50,12 @@ ls:
 ps:
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} ps
 
+logs:
+	${DOCKER_COMPOSE} -f ${CONF_PATH} logs --tail=100 -f
+
 clean:
-	sudo docker image rm ${IMAGES} || exit 1
-	sudo docker volume rm ${VOLUMES_NAMES} || exit 1
-	sudo rm -rf ${VOLUMES_PATHS} || exit 1
+# docker stop $(shell docker ps -aq)
+# docker rm $(shell docker ps -aq)
+# docker rmi ${IMAGES}
+# docker volume rm ${VOLUMES_NAMES}
+	rm -rf ${VOLUMES_PATHS}

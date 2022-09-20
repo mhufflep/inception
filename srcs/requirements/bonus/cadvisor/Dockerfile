@@ -16,4 +16,4 @@ RUN	chmod +x /usr/bin/cadvisor
 COPY ./tools/run.sh ./run.sh
 RUN  chmod +x ./run.sh
 
-CMD [ './run.sh' ]
+ENTRYPOINT [ "/run.sh" ]

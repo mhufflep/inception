@@ -10,7 +10,7 @@ ARG ADMINER_FOLDER=/var/www/html/adminer
 RUN apk update && apk upgrade
 RUN	apk add --no-cache wget \
 	php7-session php7 php7-fpm php7-mysqli
-	
+
 RUN mkdir -p "$ADMINER_FOLDER" /run/php
 
 RUN wget "https://github.com/vrana/adminer/releases/download/v$ADMINER_VERSION/adminer-$ADMINER_VERSION.php" \
@@ -21,4 +21,4 @@ COPY ./conf/www.conf /etc/php7/php-fpm.d/www.conf
 COPY ./tools/run.sh /run.sh
 RUN chmod +x /run.sh
 
-CMD [ './run.sh' ]
+ENTRYPOINT [ "/run.sh" ]

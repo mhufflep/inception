@@ -1,18 +1,19 @@
 #!/bin/sh
 
+wp-cli core download --version=5.8.1
+
+if [ ! -e wp-config.php ]; then
+	wp-cli config create             \
+		--dbname=$WP_DB_NAME         \
+		--dbuser=$MYSQL_USER_NAME    \
+		--dbpass=$MYSQL_USER_PASS    \
+		--dbhost=$MYSQL_HOST         \
+		--dbprefix=wp
+fi
+
 if wp-cli core is-installed; then
 	echo "Wordpress already installed"
 else
-
-	if [ ! -e wp-config.php ]; then
-		wp-cli config create             \
-			--dbname=$WP_DB_NAME         \
-			--dbuser=$MYSQL_USER_NAME    \
-			--dbpass=$MYSQL_USER_PASS    \
-			--dbhost=$MYSQL_HOST         \
-			--dbprefix=wp
-	fi
-
 	wp-cli core install                  \
 		--url=$WP_URL                    \
 		--title=$WP_TITLE                \
@@ -27,8 +28,9 @@ else
 		--user_pass=$WP_USER_PASS        
 
 	wp-cli plugin install redis-cache
-	wp-cli plugin activate redis-cache
-	wp-cli redis enable	
 fi
 
-exec php-fpm7.3 --nodaemonize
+wp-cli plugin activate redis-cache
+wp-cli redis enable
+
+exec php-fpm7 --nodaemonize $@

@@ -8,7 +8,7 @@ ENV PROMETHEUS_VERSION=2.8.1
 
 RUN apk update && apk upgrade
 RUN apk add --no-cache wget
-    
+
 RUN wget "https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz" \
     && tar -xvzf prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz \
     && rm -f prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz     \
@@ -29,4 +29,4 @@ RUN  chmod +x ./run.sh
 
 EXPOSE 9090
 
-CMD [ './run.sh' ]
+ENTRYPOINT [ "/run.sh" ]

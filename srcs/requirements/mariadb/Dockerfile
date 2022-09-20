@@ -5,15 +5,14 @@ LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
 	  build="15-Sep-2022"
 
 RUN apk update && apk upgrade
-RUN apk add --no-cache mariadb mariadb-client
+RUN apk add --no-cache mariadb mariadb-client gettext
 
-RUN mkdir -p /confs
-
-COPY ./conf/my.cnf /confs/my.cnf
+COPY ./conf/my.cnf /etc/mysql/my.cnf
+COPY ./conf/tmpl.sql /tmpl.sql
 
 COPY ./tools/run.sh /run.sh
 RUN chmod +x /run.sh
 
 EXPOSE 3306
 
-CMD [ '/bin/sh' ]
+ENTRYPOINT [ "/run.sh" ]

@@ -13,4 +13,4 @@ RUN chmod +x /run.sh
 
 EXPOSE 21
 
-CMD [ './run.sh' ]
+ENTRYPOINT [ "/run.sh" ]

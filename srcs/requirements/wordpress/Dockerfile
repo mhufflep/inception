@@ -21,11 +21,11 @@ RUN chmod -R 755 /var/www/html/wordpress
 
 COPY ./conf/www.conf /etc/php/7.3/fpm/pool.d/www.conf
 
-WORKDIR /var/www/wordpress
+WORKDIR /var/www/html/wordpress
 
 COPY ./tools/run.sh /run.sh
 RUN chmod +x /run.sh
 
 EXPOSE 9000
 
-CMD [ '/run.sh' ]
+ENTRYPOINT [ "/run.sh" ]

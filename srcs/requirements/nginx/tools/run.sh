@@ -1,7 +1,9 @@
 #!/bin/sh
 
-CONF_PATH = /etc/nginx/sites-available/default.conf
+CONF_PATH='/etc/nginx/conf.d/default.conf'
 
-envsubst '$DOMAIN_NAME' < $CONF_PATH > $CONF_PATH
+if [ ! -e $CONF_PATH ]; then
+    envsubst '$DOMAIN_NAME' < /default.conf > $CONF_PATH
+fi
 
-exec nginx -g 'daemon off;'
+exec nginx -g 'daemon off;' $@
