@@ -1,15 +1,15 @@
 #!/bin/bash
 
-KEY_DIR=private
-CRT_DIR=certs
+# KEY_DIR=private
+# CRT_DIR=certs
 
-mkdir -p ${KEY_DIR} ${CRT_DIR}
+# mkdir -p ${KEY_DIR} ${CRT_DIR}
 
 CA_cert=mhufflep_CA.crt
 CA_pkey=mhufflep_CA.key
 
-SRV_cert=${CRT_DIR}/server.crt
-SRV_pkey=${KEY_DIR}/server.key
+SRV_cert=server.crt
+SRV_pkey=server.key
 SRV_csr=server.csr
 
 CSR_conf=csr.conf
@@ -19,11 +19,11 @@ DOMAIN=$1
 DOMAIN_IP=$2
 
 echo "# 0. Create Certificate Authority"
-openssl req -x509 \
+openssl req -x509 -nodes \
     -sha256 -days 356 \
     -nodes \
     -newkey rsa:2048 \
-    -subj "/CN=${DOMAIN}/C=RU/L=Kazan" \
+    -subj "/CN=straw/C=RU/L=Kazan" \
     -keyout ${CA_pkey} -out ${CA_cert} 
 
 echo "# 1. Create the Server Private Key"
@@ -45,7 +45,7 @@ ST = RT
 L = Kazan
 O = 21 School
 OU = Eternity
-CN = localhost
+CN = vanilla
 
 [ req_ext ]
 subjectAltName = @alt_names
@@ -61,6 +61,7 @@ echo "# 3. Generate Certificate Signing Request (CSR) Using Server Private Key"
 openssl req -new \
     -key ${SRV_pkey} \
     -out ${SRV_csr} \
+    -nodes \
     -config ${CSR_conf}
 
 echo "# 4. Create a configuration file containing certificate and request X.509 extensions to add."
@@ -90,3 +91,4 @@ echo "# 6. Remove unnecessary files"
 rm -f ${EXT_conf}
 rm -f ${CSR_conf}
 rm -f ${SRV_csr}
+

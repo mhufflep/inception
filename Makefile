@@ -15,8 +15,8 @@ RESUME_PATH     = ${BONUS_DIR}/resume
 include ${ENV_PATH}
 
 IMAGES           = nginx mariadb wordpress redis adminer ftps cadvisor prometheus
-VOLUMES_NAMES    = ${PV_MDB_NAME} ${PV_WP_NAME} ${PV_RESUME_NAME} ${PV_CERTS_NAME}
-VOLUMES_PATHS    = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_RESUME_PATH} ${PV_CERTS_PATH}
+VOLUMES_NAMES    = ${PV_MDB_NAME} ${PV_WP_NAME} ${PV_RESUME_NAME} ${PV_CERTS_NAME} ${PV_ADM_NAME}
+VOLUMES_PATHS    = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_RESUME_PATH} ${PV_CERTS_PATH} ${PV_ADM_PATH}
 
 ###################################################################################
 #                                   Commands                                      #
@@ -31,7 +31,7 @@ makedir:
 	mkdir -p ${VOLUMES_PATHS}
 
 copy_resume:
-	cp -r ${RESUME_PATH} ${PV_RESUME_PATH}
+	cp -r ${RESUME_PATH}/* ${PV_RESUME_PATH}
 
 generate_certs:
 	cp ${TOOLS_DIR}/gencert.sh ${PV_CERTS_PATH}
@@ -43,6 +43,9 @@ up:
 
 down:
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} down
+
+stop:
+	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} stop
 
 ls:
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} ls
@@ -57,5 +60,12 @@ clean:
 # docker stop $(shell docker ps -aq)
 # docker rm $(shell docker ps -aq)
 # docker rmi ${IMAGES}
-# docker volume rm ${VOLUMES_NAMES}
-	rm -rf ${VOLUMES_PATHS}
+	sudo docker volume rm ${VOLUMES_NAMES} || exit 1
+	sudo rm -rf ${VOLUMES_PATHS} || exit 1
+
+
+# docker stop $(docker ps -qa);
+# docker rm $(docker ps -qa);
+# docker rmi -f $(docker images -qa);
+# docker volume rm $(docker volume ls -q);
+# docker network rm $(docker network ls -q) 2>/dev/null
