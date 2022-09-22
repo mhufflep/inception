@@ -37,6 +37,9 @@ x-env-redis: &env-redis-link
   REDIS_HOST: ${REDIS_HOST:? REDIS_HOST is required }
   REDIS_PORT: ${REDIS_PORT:? REDIS_PORT is required }
 
+x-env-cadvisor: &env-cadvisor-link
+  CADVISOR_PORT: ${CADVISOR_PORT:? CADVISOR_PORT is required }
+
 services:
   mariadb:
     platform: linux/arm64/v8
@@ -158,37 +161,50 @@ services:
         condition: service_started
     logging: *logger-link
 
-  # prometheus:
-  #   platform: linux/arm64/v8
-  #   container_name: prometheus
-  #   build: ./requirements/bonus/prometheus
-  #   image: prometheus
-  #   init: true
-  #   ports:
-  #     - ${PROMETHEUS_PORT:? PROMETHEUS_PORT is required}:${PROMETHEUS_PORT}
-  #   logging: *logger-link
+  prometheus:
+    platform: linux/arm64/v8
+    container_name: prometheus
+    build: ./requirements/bonus/prometheus
+    image: prometheus
+    init: true
+    networks:
+      - intercom
+    volumes:
+      - monitor_pv:/monitor
+    ports:
+      - ${PROMETHEUS_PORT:? PROMETHEUS_PORT is required}:${PROMETHEUS_PORT}
+    depends_on:
+      cadvisor:
+        condition: service_started
+    logging: *logger-link
   
-  # cadvisor:
-  #   platform: linux/arm64/v8
-  #   container_name: cadvisor
-  #   build: ./requirements/bonus/cadvisor
-  #   image: cadvisor
-  #   init: true
-  #   volumes:
-  #     - /:/rootfs:ro
-  #     - /var/run:/var/run:ro
-  #     - /sys:/sys:ro
-  #     - /var/lib/docker/:/var/lib/docker:ro
-  #     - /dev/disk:/dev/disk/:ro
-  #   expose: 
-  #     - ${CADVISOR_PORT:? CADVISOR_PORT is required}
-  #   healthcheck:
-  #     test: [ 'CMD', 'wget', '--quiet', '--spider', 'http://localhost:${CADVISOR_PORT}/healthz' ]
-  #     interval: 30s
-  #     timeout: 3s
-  #     retries: 3
-  #     start_period: 1m
-  #   logging: *logger-link
+  cadvisor:
+    platform: linux/arm64/v8
+    container_name: cadvisor
+    build: ./requirements/bonus/cadvisor
+    image: cadvisor
+    init: true
+    networks:
+      - intercom
+    environment: *env-cadvisor-link
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk:/dev/disk/:ro
+    ports: 
+      - ${CADVISOR_PORT:? CADVISOR_PORT is required}:${CADVISOR_PORT}
+    # healthcheck:
+    #   test: [ 'CMD', 'wget', '--quiet', '--spider', 'http://localhost:${CADVISOR_PORT}/healthz' ]
+    #   interval: 30s
+    #   timeout: 3s
+    #   retries: 3
+    #   start_period: 1m
+    depends_on:
+      nginx:
+        condition: service_started
+    logging: *logger-link
 
 volumes:
   wp_pv:
@@ -226,6 +242,12 @@ volumes:
       o: bind
       type: none
       device: ${PV_RESUME_PATH:? PV_RESUME_PATH is required }
+  monitor_pv:
+    driver: local
+    driver_opts:
+      o: bind
+      type: volume
+      device: ${PV_MONITOR_PATH:? PV_MONITOR_PATH is required }
 
 networks:
   intercom:

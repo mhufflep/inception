@@ -15,8 +15,8 @@ RESUME_PATH     = ${BONUS_DIR}/resume
 include ${ENV_PATH}
 
 IMAGES           = nginx mariadb wordpress redis adminer ftps cadvisor prometheus
-VOLUMES_NAMES    = ${PV_MDB_NAME} ${PV_WP_NAME} ${PV_RESUME_NAME} ${PV_CERTS_NAME} ${PV_ADM_NAME}
-VOLUMES_PATHS    = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_RESUME_PATH} ${PV_CERTS_PATH} ${PV_ADM_PATH}
+VOLUMES_NAMES    = ${PV_MDB_NAME} ${PV_WP_NAME} ${PV_RESUME_NAME} ${PV_CERTS_NAME} ${PV_ADM_NAME} ${PV_MONITOR_NAME} 
+VOLUMES_PATHS    = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_RESUME_PATH} ${PV_CERTS_PATH} ${PV_ADM_PATH} ${PV_MONITOR_PATH}
 
 ###################################################################################
 #                                   Commands                                      #
