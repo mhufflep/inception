@@ -24,7 +24,6 @@ VOLUMES_PATHS    = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_RESUME_PATH} ${PV_CERTS_PAT
 
 all: makedir copy_resume generate_certs
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build --no-cache
-# ${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build --no-cache
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d 
 
 makedir:
@@ -37,6 +36,9 @@ generate_certs:
 	cp ${TOOLS_DIR}/gencert.sh ${PV_CERTS_PATH}
 	chmod +x ${PV_CERTS_PATH}/gencert.sh
 	cd ${PV_CERTS_PATH} && ./gencert.sh ${DOMAIN_NAME} ${DOMAIN_IP}
+# Not working need to add crt explicitly to the browser
+	sudo cp ${PV_CERTS_PATH}/mhufflep_CA.crt /etc/ssl/certs/mhufflep_CA.pem
+	sudo update-ca-certificates
 
 up:
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d
@@ -56,16 +58,14 @@ ps:
 logs:
 	${DOCKER_COMPOSE} -f ${CONF_PATH} logs --tail=100 -f
 
+pre:
+# sudo docker stop $(docker ps -qa);
+# sudo docker rm $(docker ps -qa);
+# sudo docker rmi -f $(docker images -qa);
+# sudo docker volume rm $(docker volume ls -q);
+# sudo docker network rm $(docker network ls -q) 2>/dev/null
+
 clean:
-# docker stop $(shell docker ps -aq)
-# docker rm $(shell docker ps -aq)
-# docker rmi ${IMAGES}
 	sudo docker volume rm ${VOLUMES_NAMES} || exit 1
 	sudo rm -rf ${VOLUMES_PATHS} || exit 1
 
-
-# docker stop $(docker ps -qa);
-# docker rm $(docker ps -qa);
-# docker rmi -f $(docker images -qa);
-# docker volume rm $(docker volume ls -q);
-# docker network rm $(docker network ls -q) 2>/dev/null
