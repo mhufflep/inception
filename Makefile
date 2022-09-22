@@ -59,13 +59,13 @@ logs:
 	${DOCKER_COMPOSE} -f ${CONF_PATH} logs --tail=100 -f
 
 pre:
-	sudo docker stop $(docker ps -qa)
-	sudo docker rm $(docker ps -qa)
-	sudo docker rmi -f $(docker images -qa)
-	sudo docker volume rm $(docker volume ls -q)
-	sudo docker network rm $(docker network ls -q) 2>/dev/null
+	sudo docker stop $(shell docker ps -qa) || true
+	sudo docker rm $(shell docker ps -qa) || true
+	sudo docker rmi -f $(shell docker images -qa) || true
+	sudo docker volume rm $(shell docker volume ls -q) || true
+	sudo docker network rm $(shell docker network ls -q)  || true
 
 clean:
-	sudo docker volume rm ${VOLUMES_NAMES} || exit 1
-	sudo rm -rf ${VOLUMES_PATHS} || exit 1
+	sudo docker volume rm ${VOLUMES_NAMES} || true
+	sudo rm -rf ${VOLUMES_PATHS} || true
 
