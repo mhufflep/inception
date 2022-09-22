@@ -243,6 +243,7 @@ volumes:
       type: none
       device: ${PV_RESUME_PATH:? PV_RESUME_PATH is required }
   monitor_pv:
+    name: monitor_pv
     driver: local
     driver_opts:
       o: bind
