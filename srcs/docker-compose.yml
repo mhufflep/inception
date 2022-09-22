@@ -137,26 +137,26 @@ services:
         condition: service_started
     logging: *logger-link
   
-  # ftps:
-  #   platform: linux/arm64/v8
-  #   container_name: ftps
-  #   build: ./requirements/bonus/ftps
-  #   image: ftps
-  #   restart: always
-  #   init: true
-  #   networks:
-  #     - intercom
-  #   environment: *env-ftps-link
-  #   volumes:
-  #     - wp_pv:/var/www/html/wordpress
-  #     - certs_pv:${CERTS_DIR:? CERTS_DIR is required}:ro
-  #   ports:
-  #     - 21:21
-  #     - ${FTPS_PPORT_MIN}-${FTPS_PPORT_MAX}:${FTPS_PPORT_MIN}-${FTPS_PPORT_MAX}
-  #   depends_on:
-  #     wordpress:
-  #       condition: service_healthy
-  #   logging: *logger-link
+  ftps:
+    platform: linux/arm64/v8
+    container_name: ftps
+    build: ./requirements/bonus/ftps
+    image: ftps
+    restart: on-failure
+    init: true
+    networks:
+      - intercom
+    environment: *env-ftps-link
+    volumes:
+      - wp_pv:/home/${FTPS_USER_NAME}
+      - certs_pv:${CERTS_DIR:? CERTS_DIR is required}:ro
+    ports:
+      - 21:21
+      - ${FTPS_PPORT_MIN}-${FTPS_PPORT_MAX}:${FTPS_PPORT_MIN}-${FTPS_PPORT_MAX}
+    depends_on:
+      wordpress:
+        condition: service_started
+    logging: *logger-link
 
   # prometheus:
   #   platform: linux/arm64/v8

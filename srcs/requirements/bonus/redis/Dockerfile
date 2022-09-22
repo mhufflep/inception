@@ -7,7 +7,10 @@ LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
 RUN apk update && apk upgrade
 RUN apk add --no-cache redis 
 
-COPY ./conf/redis.conf /etc/redis/redis.conf
+COPY ./conf/redis.conf /etc/redis.conf
+
+COPY ./tools/run.sh /run.sh
+RUN chmod +x /run.sh
 
 EXPOSE 6379
 

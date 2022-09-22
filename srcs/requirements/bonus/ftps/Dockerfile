@@ -7,7 +7,9 @@ LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
 RUN apk update && apk upgrade
 RUN apk add --no-cache vsftpd
 
-COPY ./conf/vsftpd.conf /etc/vsftpd/vsftpd.conf
+COPY ./conf/vsftpd.conf /etc/vsftpd.conf
+RUN mkdir -p /var/run/vsftpd/empty
+
 COPY ./tools/run.sh /run.sh
 RUN chmod +x /run.sh
 

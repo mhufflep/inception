@@ -6,6 +6,7 @@ if [ $? = 1 ] ; then
     addgroup -S $FTPS_USER_NAME
     adduser -D -S $FTPS_USER_NAME -G $FTPS_USER_NAME
     echo "${FTPS_USER_NAME}:${FTPS_USER_PASS}" | chpasswd
+    chown -R ${FTPS_USER_NAME}:${FTPS_USER_NAME} /home/${FTPS_USER_NAME}/
 else
     echo "ftps: user exist"
 fi
