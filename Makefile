@@ -23,7 +23,7 @@ VOLUMES_PATHS    = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_RESUME_PATH} ${PV_CERTS_PAT
 ###################################################################################
 
 all: makedir copy_resume generate_certs
-	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build --no-cache
+	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build
 	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d 
 
 makedir:
