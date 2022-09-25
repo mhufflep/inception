@@ -12,7 +12,9 @@ x-env-ngx: &env-ngx-link
   NGINX_PORT:        ${NGINX_PORT:? NGINX_PORT is required }
   DOMAIN_NAME:       ${DOMAIN_NAME:? DOMAIN_NAME is required }
   ADMINER_PORT:      ${ADMINER_PORT:? ADMINER_PORT is required }
+  CADVISOR_PORT:     ${CADVISOR_PORT:? CADVISOR_PORT is required }
   WORDPRESS_PORT:    ${WORDPRESS_PORT:? WORDPRESS_PORT is required }
+  PROMETHEUS_PORT:   ${PROMETHEUS_PORT:? PROMETHEUS_PORT is required }
   PV_CV_MOUNT_PATH:  ${PV_CV_MOUNT_PATH:? PV_CV_MOUNT_PATH is required }
   PV_WP_MOUNT_PATH:  ${PV_WP_MOUNT_PATH:? PV_WP_MOUNT_PATH is required }
   PV_ADM_MOUNT_PATH: ${PV_ADM_MOUNT_PATH:? PV_ADM_MOUNT_PATH is required }
@@ -125,6 +127,8 @@ services:
         condition: service_started
       wordpress:
         condition: service_started
+      prometheus:
+        condition: service_started
     logging: *logger-link
 
   adminer:
@@ -197,8 +201,8 @@ services:
     environment: *env-prometheus-link
     volumes:
       - monitor_pv:${PV_MONITOR_MOUNT_PATH:? PV_MONITOR_MOUNT_PATH is required}
-    ports:
-      - ${PROMETHEUS_PORT}:${PROMETHEUS_PORT}
+    expose:
+      - ${PROMETHEUS_PORT}
     depends_on:
       cadvisor:
         condition: service_healthy
@@ -219,17 +223,14 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk:/dev/disk/:ro
-    ports: 
-      - ${CADVISOR_PORT}:${CADVISOR_PORT}
+    expose: 
+      - ${CADVISOR_PORT}
     healthcheck:
       test: [ 'CMD', 'wget', '--quiet', '--spider', 'http://localhost:${CADVISOR_PORT}/healthz' ]
       interval: 30s
       timeout: 3s
       retries: 3
       start_period: 1m
-    depends_on:
-      nginx:
-        condition: service_started
     logging: *logger-link
 
 volumes:
