@@ -17,7 +17,6 @@ x-env-ngx: &env-ngx-link
   PROMETHEUS_PORT:   ${PROMETHEUS_PORT:? PROMETHEUS_PORT is required }
   PV_CV_MOUNT_PATH:  ${PV_CV_MOUNT_PATH:? PV_CV_MOUNT_PATH is required }
   PV_WP_MOUNT_PATH:  ${PV_WP_MOUNT_PATH:? PV_WP_MOUNT_PATH is required }
-  PV_ADM_MOUNT_PATH: ${PV_ADM_MOUNT_PATH:? PV_ADM_MOUNT_PATH is required }
 
 x-env-mdb: &env-mdb-link
   WP_DB_NAME:        ${WP_DB_NAME:? WP_DB_NAME is required }
