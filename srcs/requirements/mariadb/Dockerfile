@@ -10,8 +10,9 @@ RUN apk add --no-cache mariadb mariadb-client gettext openrc
 RUN mkdir -p /run/mysqld
 RUN chown -R mysql:mysql /run/mysqld
 
-COPY ./conf/my.cnf /etc/mysql/my.cnf
-RUN chmod 744 /etc/mysql/my.cnf
+COPY ./conf/my.cnf /my.cnf.tmpl
+RUN chmod 744 /my.cnf.tmpl
+RUN rm -f /etc/mysql/my.cnf
 COPY ./conf/tmpl.sql /tmpl.sql
 
 COPY ./tools/run.sh /run.sh

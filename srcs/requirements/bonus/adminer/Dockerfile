@@ -8,7 +8,7 @@ ARG	ADMINER_VERSION=4.8.1
 ARG ADMINER_FOLDER=/var/www/html/adminer
 
 RUN apk update && apk upgrade
-RUN	apk add --no-cache wget \
+RUN	apk add --no-cache wget gettext \
     php7 php7-fpm php7-mysqli php7-zip php7-gd \
     php7-mbstring php7-cli php7-opcache php7-zlib \
 	php7-curl php7-json php7-iconv php7-gettext \
@@ -20,7 +20,8 @@ RUN wget "https://github.com/vrana/adminer/releases/download/v$ADMINER_VERSION/a
 	--output-document="$ADMINER_FOLDER/adminer.php"
 
 RUN addgroup -S adminer && adduser -S adminer -G adminer
-COPY ./conf/www.conf /etc/php7/php-fpm.d/www.conf
+COPY ./conf/www.conf /www.conf.tmpl 
+RUN rm -f /etc/php7/php-fpm.d/www.conf
 
 COPY ./tools/run.sh /run.sh
 RUN chmod +x /run.sh

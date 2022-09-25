@@ -4,59 +4,60 @@
 #                                Configurations                                   #
 ###################################################################################
 
-DOCKER_COMPOSE  = docker compose
+COMPOSE   = docker compose
 
-ENV_PATH        = ./srcs/.env
-CONF_PATH       = ./srcs/docker-compose.yml
-BONUS_DIR       = ./srcs/requirements/bonus
-TOOLS_DIR       = ./srcs/requirements/tools
-RESUME_PATH     = ${BONUS_DIR}/resume
+ENV_PATH  = ./srcs/.env
+CONF_PATH = ./srcs/docker-compose.yml
+BONUS_DIR = ./srcs/requirements/bonus
+TOOLS_DIR = ./srcs/requirements/tools
+CV_PATH   = ${BONUS_DIR}/resume
 
 include ${ENV_PATH}
 
-IMAGES           = nginx mariadb wordpress redis adminer ftps cadvisor prometheus
-VOLUMES_NAMES    = ${PV_MDB_NAME} ${PV_WP_NAME} ${PV_RESUME_NAME} ${PV_CERTS_NAME} ${PV_ADM_NAME} ${PV_MONITOR_NAME} 
-VOLUMES_PATHS    = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_RESUME_PATH} ${PV_CERTS_PATH} ${PV_ADM_PATH} ${PV_MONITOR_PATH}
+IMAGES        = nginx mariadb wordpress redis adminer ftps cadvisor prometheus
+VOLUMES_NAMES = ${PV_MDB_NAME} ${PV_WP_NAME} ${PV_CV_NAME} ${PV_CERTS_NAME} ${PV_ADM_NAME} ${PV_MONITOR_NAME} 
+VOLUMES_PATHS = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_CV_PATH} ${PV_CERTS_PATH} ${PV_ADM_PATH} ${PV_MONITOR_PATH}
 
 ###################################################################################
 #                                   Commands                                      #
 ###################################################################################
 
 all: makedir copy_resume generate_certs
-	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build
-	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d 
+	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build
+	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d 
 
 makedir:
 	mkdir -p ${VOLUMES_PATHS}
 
 copy_resume:
-	cp -r ${RESUME_PATH}/* ${PV_RESUME_PATH}
+	cp -r ${CV_PATH}/* ${PV_CV_PATH}
 
 generate_certs:
 	cp ${TOOLS_DIR}/gencert.sh ${PV_CERTS_PATH}
 	chmod +x ${PV_CERTS_PATH}/gencert.sh
-	cd ${PV_CERTS_PATH} && ./gencert.sh ${DOMAIN_NAME} ${DOMAIN_IP}
+	cd ${PV_CERTS_PATH} && ./gencert.sh ${DOMAIN_NAME} ${DOMAIN_IP} ${LOGIN}
+
 # Not working need to add crt explicitly to the browser
-	sudo cp ${PV_CERTS_PATH}/mhufflep_CA.crt /etc/ssl/certs/mhufflep_CA.pem
-	sudo update-ca-certificates
+# sudo cp ${PV_CERTS_PATH}/mhufflep_CA.crt /etc/ssl/certs/mhufflep_CA.pem
+# sudo update-ca-certificates
 
 up:
-	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d
+	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d
 
 down:
-	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} down
+	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} down
 
 stop:
-	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} stop
+	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} stop
 
 ls:
-	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} ls
+	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} ls
 
 ps:
-	${DOCKER_COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} ps
+	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} ps
 
 logs:
-	${DOCKER_COMPOSE} -f ${CONF_PATH} logs --tail=100 -f
+	${COMPOSE} -f ${CONF_PATH} logs --tail=100 -f
 
 pre:
 	sudo docker stop $(shell docker ps -qa) || true

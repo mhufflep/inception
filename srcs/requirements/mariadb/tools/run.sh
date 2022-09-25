@@ -3,6 +3,10 @@
 openrc default
 if [ ! -d "/var/lib/mysql/mysql" ]; then
 
+    if [ ! -e /etc/mysql/my.cnf ]; then
+        cat /my.cnf.tmpl | envsubst > /etc/mysql/my.cnf
+    fi
+
     /etc/init.d/mariadb setup
     rc-service mariadb start
 
@@ -10,6 +14,7 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     cat /tmpl.sql | envsubst | mysql -u root
 
     rc-service mariadb stop
+
 fi
 
 # Running daemon

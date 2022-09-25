@@ -5,9 +5,9 @@ LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
 	  build="15-Sep-2022"
 
 RUN apk update && apk upgrade
-RUN apk add --no-cache vsftpd
+RUN apk add --no-cache vsftpd gettext
 
-COPY ./conf/vsftpd.conf /etc/vsftpd.conf
+COPY ./conf/vsftpd.conf /vsftpd.conf.tmpl
 RUN mkdir -p /var/run/vsftpd/empty
 
 COPY ./tools/run.sh /run.sh

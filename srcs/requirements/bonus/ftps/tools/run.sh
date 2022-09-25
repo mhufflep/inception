@@ -1,12 +1,14 @@
 #!/bin/sh
 
-id "$FTPS_USER_NAME" &>/dev/null
+id "$FTP_USER_NAME" &>/dev/null
 if [ $? = 1 ] ; then
     echo "ftps: user does not exist"
-    addgroup -S $FTPS_USER_NAME
-    adduser -D -S $FTPS_USER_NAME -G $FTPS_USER_NAME
-    echo "${FTPS_USER_NAME}:${FTPS_USER_PASS}" | chpasswd
-    chown -R ${FTPS_USER_NAME}:${FTPS_USER_NAME} /home/${FTPS_USER_NAME}/
+    addgroup -S $FTP_USER_NAME
+    adduser -D -S $FTP_USER_NAME -G $FTP_USER_NAME
+    echo "${FTP_USER_NAME}:${FTP_USER_PASS}" | chpasswd
+    chown -R ${FTP_USER_NAME}:${FTP_USER_NAME} /home/${FTP_USER_NAME}/
+
+    cat /vsftpd.conf.tmpl | envsubst > /etc/vsftpd.conf
 else
     echo "ftps: user exist"
 fi

@@ -2,12 +2,16 @@
 
 set -x
 
+if [ ! -e /etc/php7/php-fpm.d/www.conf ]; then
+    cat /www.conf.tmpl | envsubst > /etc/php7/php-fpm.d/www.conf
+fi
+
 if [ ! -e wp-config.php ]; then
 	wp config create --allow-root \
 		--dbname=$WP_DB_NAME      \
-		--dbuser=$MYSQL_USER_NAME \
-		--dbpass=$MYSQL_USER_PASS \
-		--dbhost=$MYSQL_HOST
+		--dbuser=$MARIADB_USER_NAME \
+		--dbpass=$MARIADB_USER_PASS \
+		--dbhost=$MARIADB_HOST
 
 	wp db create --allow-root
 fi

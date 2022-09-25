@@ -6,39 +6,59 @@ x-logger: &logger-link
   driver: json-file
 
 x-env-ngx: &env-ngx-link
-  DOMAIN_IP: ${DOMAIN_IP:? DOMAIN_IP is required }
-  DOMAIN_NAME: ${DOMAIN_NAME:? DOMAIN_NAME is required }
+  CRT_PATH:          ${CRT_PATH:? CRT_PATH is required }
+  KEY_PATH:          ${KEY_PATH:? KEY_PATH is required }
+  DOMAIN_IP:         ${DOMAIN_IP:? DOMAIN_IP is required }
+  NGINX_PORT:        ${NGINX_PORT:? NGINX_PORT is required }
+  DOMAIN_NAME:       ${DOMAIN_NAME:? DOMAIN_NAME is required }
+  ADMINER_PORT:      ${ADMINER_PORT:? ADMINER_PORT is required }
+  WORDPRESS_PORT:    ${WORDPRESS_PORT:? WORDPRESS_PORT is required }
+  PV_CV_MOUNT_PATH:  ${PV_CV_MOUNT_PATH:? PV_CV_MOUNT_PATH is required }
+  PV_WP_MOUNT_PATH:  ${PV_WP_MOUNT_PATH:? PV_WP_MOUNT_PATH is required }
+  PV_ADM_MOUNT_PATH: ${PV_ADM_MOUNT_PATH:? PV_ADM_MOUNT_PATH is required }
 
 x-env-mdb: &env-mdb-link
-  WP_DB_NAME: ${WP_DB_NAME:? WP_DB_NAME is required }
-  MYSQL_HOST: ${MYSQL_HOST:? MYSQL_HOST is required }
-  MYSQL_USER_NAME: ${MYSQL_USER_NAME:? MYSQL_USER_NAME is required }
-  MYSQL_USER_PASS: ${MYSQL_USER_PASS:? MYSQL_USER_PASS is required }
-  MYSQL_ROOT_PASS: ${MYSQL_ROOT_PASS:? MYSQL_ROOT_PASS is required }
+  WP_DB_NAME:        ${WP_DB_NAME:? WP_DB_NAME is required }
+  MARIADB_HOST:      ${MARIADB_HOST:? MARIADB_HOST is required }
+  MARIADB_PORT:      ${MARIADB_PORT:? MARIADB_PORT is required }
+  MARIADB_USER_NAME: ${MARIADB_USER_NAME:? MARIADB_USER_NAME is required }
+  MARIADB_USER_PASS: ${MARIADB_USER_PASS:? MARIADB_USER_PASS is required }
+  MARIADB_ROOT_PASS: ${MARIADB_ROOT_PASS:? MARIADB_ROOT_PASS is required }
 
 x-env-wp: &env-wp-link
-  WP_URL: ${WP_URL:? WP_URL is required }
-  WP_TITLE: ${WP_TITLE:? WP_TITLE is required }
-  WP_USER_NAME: ${WP_USER_NAME:? WP_USER_NAME is required }
-  WP_USER_PASS: ${WP_USER_PASS:? WP_USER_PASS is required }
-  WP_USER_EMAIL: ${WP_USER_EMAIL:? WP_USER_EMAIL is required }
-  WP_ADMIN_NAME: ${WP_ADMIN_NAME:? WP_ADMIN_NAME is required }
-  WP_ADMIN_PASS: ${WP_ADMIN_PASS:? WP_ADMIN_PASS is required }
-  WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:? WP_ADMIN_EMAIL is required }
+  WP_URL:            ${WP_URL:? WP_URL is required }
+  WP_TITLE:          ${WP_TITLE:? WP_TITLE is required }
+  WP_USER_NAME:      ${WP_USER_NAME:? WP_USER_NAME is required }
+  WP_USER_PASS:      ${WP_USER_PASS:? WP_USER_PASS is required }
+  WP_USER_EMAIL:     ${WP_USER_EMAIL:? WP_USER_EMAIL is required }
+  WP_ADMIN_NAME:     ${WP_ADMIN_NAME:? WP_ADMIN_NAME is required }
+  WP_ADMIN_PASS:     ${WP_ADMIN_PASS:? WP_ADMIN_PASS is required }
+  WP_ADMIN_EMAIL:    ${WP_ADMIN_EMAIL:? WP_ADMIN_EMAIL is required }
+  WORDPRESS_PORT:    ${WORDPRESS_PORT:? WORDPRESS_PORT is required }
 
 x-env-ftps: &env-ftps-link
-  FTPS_ROOT_DIR:  ${FTPS_ROOT_DIR:? FTPS_ROOT_DIR is required }
-  FTPS_USER_NAME: ${FTPS_USER_NAME:? FTPS_USER_NAME is required }
-  FTPS_USER_PASS: ${FTPS_USER_PASS:? FTPS_USER_PASS is required }
-  FTPS_PPORT_MIN: ${FTPS_PPORT_MIN:? FTPS_PPORT_MIN is required }
-  FTPS_PPORT_MAX: ${FTPS_PPORT_MAX:? FTPS_PPORT_MAX is required }
+  CRT_PATH:          ${CRT_PATH:? CRT_PATH is required }
+  KEY_PATH:          ${KEY_PATH:? KEY_PATH is required }
+  FTP_APORT:         ${FTP_APORT:? FTP_APORT is required }
+  FTP_ROOT_DIR:      ${FTP_ROOT_DIR:? FTP_ROOT_DIR is required }
+  FTP_USER_NAME:     ${FTP_USER_NAME:? FTP_USER_NAME is required }
+  FTP_USER_PASS:     ${FTP_USER_PASS:? FTP_USER_PASS is required }
+  FTP_PPORT_MIN:     ${FTP_PPORT_MIN:? FTP_PPORT_MIN is required }
+  FTP_PPORT_MAX:     ${FTP_PPORT_MAX:? FTP_PPORT_MAX is required }
+
+x-env-adminer: &env-adminer-link
+  ADMINER_PORT:      ${ADMINER_PORT:? ADMINER_PORT is required }  
 
 x-env-redis: &env-redis-link
-  REDIS_HOST: ${REDIS_HOST:? REDIS_HOST is required }
-  REDIS_PORT: ${REDIS_PORT:? REDIS_PORT is required }
+  REDIS_HOST:        ${REDIS_HOST:? REDIS_HOST is required }
+  REDIS_PORT:        ${REDIS_PORT:? REDIS_PORT is required }
 
 x-env-cadvisor: &env-cadvisor-link
-  CADVISOR_PORT: ${CADVISOR_PORT:? CADVISOR_PORT is required }
+  CADVISOR_PORT:     ${CADVISOR_PORT:? CADVISOR_PORT is required }
+
+x-env-prometheus: &env-prometheus-link
+  CADVISOR_PORT:     ${CADVISOR_PORT:? CADVISOR_PORT is required }
+  PROMETHEUS_PORT:   ${PROMETHEUS_PORT:? PROMETHEUS_PORT is required }
 
 services:
   mariadb:
@@ -51,10 +71,10 @@ services:
     networks:
       - intercom
     volumes:
-      - mdb_pv:/var/lib/mysql
+      - mdb_pv:${PV_MDB_MOUNT_PATH:? PV_MDB_MOUNT_PATH is required }
     environment: *env-mdb-link
     healthcheck:
-      test: [ 'CMD', 'mysqladmin', 'ping', '--silent', '-u', '${MYSQL_USER_NAME}', '-p${MYSQL_USER_PASS}' ]
+      test: [ 'CMD', 'mysqladmin', 'ping', '--silent', '-u', '${MARIADB_USER_NAME}', '-p${MARIADB_USER_PASS}' ]
       start_period: 1m
       interval: 30s
       timeout: 30s
@@ -71,11 +91,13 @@ services:
     networks:
       - intercom
     volumes:
-      - wp_pv:/var/www/html/wordpress
+      - wp_pv:${PV_WP_MOUNT_PATH:? PV_WP_MOUNT_PATH is required }
     environment:
       <<: *env-mdb-link
       <<: *env-wp-link
       <<: *env-redis-link
+    expose:
+      - ${WORDPRESS_PORT:? WORDPRESS_PORT is required }
     depends_on:
       mariadb:
         condition: service_healthy
@@ -91,13 +113,13 @@ services:
     networks:
       - intercom
     volumes: 
-      - wp_pv:/var/www/html/wordpress
-      - adm_pv:/var/www/html/adminer
-      - resume_pv:/var/www/html/resume:ro
-      - certs_pv:${CERTS_DIR:? CERTS_DIR is required}:ro
+      - wp_pv:${PV_WP_MOUNT_PATH:? PV_WP_MOUNT_PATH is required }
+      - adm_pv:${PV_ADM_MOUNT_PATH:? PV_ADM_MOUNT_PATH is required }
+      - resume_pv:${PV_CV_MOUNT_PATH:? PV_CV_MOUNT_PATH is required }:ro
+      - certs_pv:${PV_CERTS_MOUNT_PATH:? PV_CERTS_MOUNT_PATH is required}:ro
     environment: *env-ngx-link
     ports:
-      - 443:443
+      - ${NGINX_PORT}:${NGINX_PORT}
     depends_on:
       adminer:
         condition: service_started
@@ -114,8 +136,11 @@ services:
     init: true
     networks:
       - intercom
+    environment: *env-adminer-link
     volumes:
-      - adm_pv:/var/www/html/adminer
+      - adm_pv:${PV_ADM_MOUNT_PATH:? PV_ADM_MOUNT_PATH is required }
+    expose:
+      - ${ADMINER_PORT:? ADMINER_PORT is required }
     depends_on:
       mariadb:
         condition: service_healthy
@@ -151,11 +176,11 @@ services:
       - intercom
     environment: *env-ftps-link
     volumes:
-      - wp_pv:/home/${FTPS_USER_NAME}
-      - certs_pv:${CERTS_DIR:? CERTS_DIR is required}:ro
+      - wp_pv:/home/${FTP_USER_NAME}
+      - certs_pv:${PV_CERTS_MOUNT_PATH:? PV_CERTS_MOUNT_PATH is required}:ro
     ports:
-      - 21:21
-      - ${FTPS_PPORT_MIN}-${FTPS_PPORT_MAX}:${FTPS_PPORT_MIN}-${FTPS_PPORT_MAX}
+      - ${FTP_APORT}:${FTP_APORT}
+      - ${FTP_PPORT_MIN}-${FTP_PPORT_MAX}:${FTP_PPORT_MIN}-${FTP_PPORT_MAX}
     depends_on:
       wordpress:
         condition: service_started
@@ -169,13 +194,14 @@ services:
     init: true
     networks:
       - intercom
+    environment: *env-prometheus-link
     volumes:
-      - monitor_pv:/monitor
+      - monitor_pv:${PV_MONITOR_MOUNT_PATH:? PV_MONITOR_MOUNT_PATH is required}
     ports:
-      - ${PROMETHEUS_PORT:? PROMETHEUS_PORT is required}:${PROMETHEUS_PORT}
+      - ${PROMETHEUS_PORT}:${PROMETHEUS_PORT}
     depends_on:
       cadvisor:
-        condition: service_started
+        condition: service_healthy
     logging: *logger-link
   
   cadvisor:
@@ -194,13 +220,13 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk:/dev/disk/:ro
     ports: 
-      - ${CADVISOR_PORT:? CADVISOR_PORT is required}:${CADVISOR_PORT}
-    # healthcheck:
-    #   test: [ 'CMD', 'wget', '--quiet', '--spider', 'http://localhost:${CADVISOR_PORT}/healthz' ]
-    #   interval: 30s
-    #   timeout: 3s
-    #   retries: 3
-    #   start_period: 1m
+      - ${CADVISOR_PORT}:${CADVISOR_PORT}
+    healthcheck:
+      test: [ 'CMD', 'wget', '--quiet', '--spider', 'http://localhost:${CADVISOR_PORT}/healthz' ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 1m
     depends_on:
       nginx:
         condition: service_started
@@ -208,42 +234,42 @@ services:
 
 volumes:
   wp_pv:
-    name: wp_pv
+    name: ${PV_WP_NAME:? PV_WP_NAME is required }
     driver: local
     driver_opts:
       type: none
       o: bind
       device: ${PV_WP_PATH:? PV_WP_PATH is required }
   adm_pv:
-    name: adm_pv
+    name: ${PV_ADM_NAME:? PV_ADM_NAME is required }
     driver: local
     driver_opts:
       type: none
       o: bind
       device: ${PV_ADM_PATH:? PV_ADM_PATH is required }
   mdb_pv:
-    name: mdb_pv
+    name: ${PV_MDB_NAME:? PV_MDB_NAME is required }
     driver: local
     driver_opts:
       type: none
       o: bind
       device: ${PV_MDB_PATH:? PV_MDB_PATH is required }
   certs_pv:
-    name: certs_pv
+    name: ${PV_CERTS_NAME:? PV_CERTS_NAME is required }
     driver: local
     driver_opts:
       o: bind
       type: none
       device: ${PV_CERTS_PATH:? PV_CERTS_PATH is required }
   resume_pv:
-    name: resume_pv
+    name: ${PV_CV_NAME:? PV_CV_NAME is required }
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: ${PV_RESUME_PATH:? PV_RESUME_PATH is required }
+      device: ${PV_CV_PATH:? PV_CV_PATH is required }
   monitor_pv:
-    name: monitor_pv
+    name: ${PV_MONITOR_NAME:? PV_MONITOR_NAME is required }
     driver: local
     driver_opts:
       o: bind

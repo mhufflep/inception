@@ -1,16 +1,11 @@
 #!/bin/bash
 
-# KEY_DIR=private
-# CRT_DIR=certs
+CA_cert=$3_CA.crt
+CA_pkey=$3_CA.key
 
-# mkdir -p ${KEY_DIR} ${CRT_DIR}
-
-CA_cert=mhufflep_CA.crt
-CA_pkey=mhufflep_CA.key
-
-SRV_cert=server.crt
-SRV_pkey=server.key
-SRV_csr=server.csr
+SRV_cert=$3.crt
+SRV_pkey=$3.key
+SRV_csr=$3.csr
 
 CSR_conf=csr.conf
 EXT_conf=cert.conf
@@ -23,7 +18,7 @@ openssl req -x509 -nodes \
     -sha256 -days 356 \
     -nodes \
     -newkey rsa:2048 \
-    -subj "/CN=straw/C=RU/L=Kazan" \
+    -subj "/CN=Strawberry/C=RU/L=Kazan" \
     -keyout ${CA_pkey} -out ${CA_cert} 
 
 echo "# 1. Create the Server Private Key"
@@ -45,7 +40,7 @@ ST = RT
 L = Kazan
 O = 21 School
 OU = Eternity
-CN = vanilla
+CN = Vanilla
 
 [ req_ext ]
 subjectAltName = @alt_names

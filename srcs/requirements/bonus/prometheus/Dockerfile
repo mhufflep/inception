@@ -7,7 +7,7 @@ LABEL maintainer="Ilnur Timergaliev <timergaliev.code@gmail.com>" \
 ENV PROMETHEUS_VERSION=2.8.1
 
 RUN apk update && apk upgrade
-RUN apk add --no-cache wget
+RUN apk add --no-cache wget gettext
 
 RUN wget "https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-arm64.tar.gz" \
     && tar -xvzf prometheus-${PROMETHEUS_VERSION}.linux-arm64.tar.gz \
@@ -19,14 +19,14 @@ RUN wget "https://github.com/prometheus/prometheus/releases/download/v${PROMETHE
     && cp -R prometheus/consoles/          /etc/prometheus/          \
     && cp -R prometheus/console_libraries/ /etc/prometheus/ 
 
-# Not sure if they needed
+#  Not sure if they needed
 # VOLUME /etc/prometheus
 # VOLUME /var/lib/prometheus
 
-COPY ./conf/prometheus.yml /etc/prometheus/prometheus.yml
+COPY ./conf/prometheus.yml /prometheus.yml.tmpl
+RUN rm -f /etc/prometheus/prometheus.yml
+
 COPY ./tools/run.sh ./run.sh
 RUN  chmod +x ./run.sh
-
-EXPOSE 9090
 
 ENTRYPOINT [ "/run.sh" ]
