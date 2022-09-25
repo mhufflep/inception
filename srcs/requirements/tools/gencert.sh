@@ -40,7 +40,7 @@ ST = RT
 L = Kazan
 O = 21 School
 OU = Eternity
-CN = Vanilla
+CN = ${DOMAIN}
 
 [ req_ext ]
 subjectAltName = @alt_names

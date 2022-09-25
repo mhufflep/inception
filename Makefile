@@ -38,8 +38,8 @@ generate_certs:
 	cd ${PV_CERTS_PATH} && ./gencert.sh ${DOMAIN_NAME} ${DOMAIN_IP} ${LOGIN}
 
 # Not working need to add crt explicitly to the browser
-# sudo cp ${PV_CERTS_PATH}/mhufflep_CA.crt /etc/ssl/certs/mhufflep_CA.pem
-# sudo update-ca-certificates
+	sudo cp ${PV_CERTS_PATH}/${LOGIN}_CA.crt /usr/local/share/ca-certificates/
+	sudo update-ca-certificates
 
 up:
 	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d

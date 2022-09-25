@@ -10,7 +10,6 @@ scrape_configs:
       labels:
         alias: 'prometheus'
   - job_name: 'cadvisor'
-    metrics_path: /cadvisor/metrics
     static_configs:
     - targets: [ 'cadvisor:$CADVISOR_PORT' ]
       labels:
