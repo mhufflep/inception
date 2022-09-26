@@ -22,9 +22,7 @@ VOLUMES_PATHS = ${PV_MDB_PATH} ${PV_WP_PATH} ${PV_CV_PATH} ${PV_CERTS_PATH} ${PV
 #                                   Commands                                      #
 ###################################################################################
 
-all: makedir copy_resume generate_certs
-	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build
-	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d 
+all: makedir copy_resume generate_certs build up
 
 makedir:
 	mkdir -p ${VOLUMES_PATHS}
@@ -37,9 +35,13 @@ generate_certs:
 	chmod +x ${PV_CERTS_PATH}/gencert.sh
 	cd ${PV_CERTS_PATH} && ./gencert.sh ${DOMAIN_NAME} ${DOMAIN_IP} ${LOGIN}
 
-# Not working need to add crt explicitly to the browser
+###  update-ca-certificates available on ubuntu and debian
+###  Not working need to add crt explicitly to the browser
 	sudo cp ${PV_CERTS_PATH}/${LOGIN}_CA.crt /usr/local/share/ca-certificates/
 	sudo update-ca-certificates
+
+build:
+	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} build
 
 up:
 	${COMPOSE} --env-file=${ENV_PATH} -f ${CONF_PATH} up -d
